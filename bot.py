@@ -8,6 +8,7 @@ from routers.wishes import router as wishes_router
 from routers.profile import router as profile_router
 from routers.shop import router as shop_router
 from routers.leaderboard import router as leaderboard_router
+from routers.banners import router as banner_router
 
     
 bot = Bot(TOKEN)
@@ -25,6 +26,7 @@ async def main():
     dp.include_router(profile_router)
     dp.include_router(shop_router)
     dp.include_router(leaderboard_router)
+    dp.include_router(banner_router)
 
     await db.executescript(
         '''
@@ -39,7 +41,8 @@ async def main():
         pity_5 INTEGER DEFAULT 0,
         stardust INTEGER DEFAULT 0,
         starglitter INTEGER DEFAULT 0,
-        hour_reward DATETIME DEFAULT CURRENT_TIMESTAMP
+        hour_reward DATETIME DEFAULT CURRENT_TIMESTAMP,
+        current_banner TEXT DEFAULT 'characters'
         );
 
         CREATE TABLE IF NOT EXISTS inventory 

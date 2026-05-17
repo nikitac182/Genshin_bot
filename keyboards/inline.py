@@ -14,6 +14,9 @@ menu_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(text="🏆 Лидерборд", callback_data="leaderboard"),
             InlineKeyboardButton(text="✨ Обмен пыли и блеска", callback_data="exchange")
         ],
+        [
+            InlineKeyboardButton(text="🔄 Сменить баннер", callback_data="change_banner")
+        ],
     ]
 )
 
@@ -32,11 +35,11 @@ shop_menu_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(text="💎 3200 гемов – 20 руб", callback_data="buy_3200_20")
         ],
         [
-            InlineKeyboardButton(text="💎 8000 гемов – 50 руб", callback_data="buy_8000_50"), 
-            InlineKeyboardButton(text="💎 16000 гемов – 100 руб", callback_data="buy_16000_100")
+            InlineKeyboardButton(text="💎 12000 гемов – 50 руб", callback_data="buy_12000_50"), 
+            InlineKeyboardButton(text="💎 32000 гемов – 100 руб", callback_data="buy_32000_100")
         ],
         [
-            InlineKeyboardButton(text="💎 48000 гемов – 300 руб", callback_data="buy_48000_300"), 
+            InlineKeyboardButton(text="💎 96000 гемов – 300 руб", callback_data="buy_96000_300"), 
         ],
         [
             InlineKeyboardButton(text="📞 Связаться с админом для начисления", callback_data="contact_admin"), 
@@ -53,3 +56,18 @@ payment_confirm_kb = InlineKeyboardMarkup(inline_keyboard=[
         InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_payment")
     ]
 ])
+
+banner_menu_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="👥 Ивент (персонажи)", callback_data="banner_characters"),
+            InlineKeyboardButton(text="⚔️ Оружейный", callback_data="banner_weapons")
+        ],
+        [
+            InlineKeyboardButton(text="⭐ Стандартный", callback_data="banner_standard"),
+        ],
+        [
+            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")
+        ],
+    ]
+)

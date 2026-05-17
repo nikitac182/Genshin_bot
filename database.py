@@ -85,3 +85,85 @@ async def pull_total_wishes(user_id, amount):
     async with aiosqlite.connect('sqlite.db') as db:
         await db.execute('UPDATE users SET total_wishes = total_wishes + ? WHERE user_id = ?', (amount, user_id))
         await db.commit()
+
+async def get_character_constellation(user_id: int, character_name: str) -> int:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT constellation_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "character"',
+            (user_id, character_name)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else 0
+
+async def update_character_constellation(user_id: int, character_name: str, new_level: int):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute(
+            'UPDATE inventory SET constellation_level = ? WHERE user_id = ? AND item_name = ? AND item_type = "character"',
+            (new_level, user_id, character_name)
+        )
+        await db.commit()
+
+async def add_character_with_constellation(user_id: int, character_name: str, rarity: int):
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT id, constellation_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "character"',
+            (user_id, character_name)
+        ) as cursor:
+            existing = await cursor.fetchone()
+        
+        if existing:
+
+            current_level = existing[1]
+            new_level = min(current_level + 1, 6)
+            
+            await db.execute(
+                'UPDATE inventory SET constellation_level = ? WHERE id = ?',
+                (new_level, existing[0])
+            )
+            await db.commit()
+            return current_level, new_level
+        else:
+            await db.execute(
+                'INSERT INTO inventory (user_id, item_name, item_type, rarity, constellation_level) VALUES (?, ?, ?, ?, ?)',
+                (user_id, character_name, "character", rarity, 0)
+            )
+            await db.commit()
+            return None, 0
+
+async def add_weapon(user_id: int, weapon_name: str, rarity: int):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute(
+            'INSERT INTO inventory (user_id, item_name, item_type, rarity, constellation_level) VALUES (?, ?, ?, ?, ?)',
+            (user_id, weapon_name, "weapon", rarity, 0)
+        )
+        await db.commit()
+
+async def get_user_banner(user_id: int) -> str:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute('SELECT current_banner FROM users WHERE user_id = ?', (user_id,)) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result and result[0] else "characters"
+
+async def set_user_banner(user_id: int, banner_type: str):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute('UPDATE users SET current_banner = ? WHERE user_id = ?', (banner_type, user_id))
+        await db.commit()
+
+async def add_stardust_starglitter(user_id: int, stardust: int = 0, starglitter: int = 0):
+    """Добавляет звёздную пыль и блеск пользователю"""
+    async with aiosqlite.connect('sqlite.db') as db:
+        if stardust > 0:
+            await db.execute('UPDATE users SET stardust = stardust + ? WHERE user_id = ?', (stardust, user_id))
+        if starglitter > 0:
+            await db.execute('UPDATE users SET starglitter = starglitter + ? WHERE user_id = ?', (starglitter, user_id))
+        await db.commit()
+
+
+async def add_to_wish_log(user_id: int, item_name: str, rarity: int):
+    """Добавляет запись в лог круток"""
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute(
+            'INSERT INTO wish_log (user_id, item_name, rarity) VALUES (?, ?, ?)',
+            (user_id, item_name, rarity)
+        )
+        await db.commit()
