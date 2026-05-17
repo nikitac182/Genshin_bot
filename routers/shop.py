@@ -2,7 +2,7 @@ from aiogram.types import *
 from aiogram import Router
 from keyboards.inline import shop_menu_kb, payment_confirm_kb
 from database import *
-from config import PAYMENT_INSTRUCTION, ADMIN_ID, TOPUP_REQUEST
+from consts import PAYMENT_INSTRUCTION, TOPUP_REQUEST
 from services.payments import confirm_payment, process_buy
 from state.payment_state import PaymentState
 from aiogram.fsm.context import FSMContext
