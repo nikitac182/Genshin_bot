@@ -1,0 +1,72 @@
+import asyncio
+import aiosqlite
+from aiogram import Bot, Dispatcher
+from config import TOKEN
+from routers.admin import router as admin_router
+from routers.start import router as start_router
+from routers.wishes import router as wishes_router
+from routers.profile import router as profile_router
+from routers.shop import router as shop_router
+from routers.leaderboard import router as leaderboard_router
+
+    
+bot = Bot(TOKEN)
+dp = Dispatcher()
+
+# dp.include_router(admin_router)
+
+async def main():
+
+    db = await aiosqlite.connect('sqlite.db')
+    
+
+    dp.include_router(start_router)
+    dp.include_router(wishes_router)
+    dp.include_router(profile_router)
+    dp.include_router(shop_router)
+    dp.include_router(leaderboard_router)
+
+    await db.executescript(
+        '''
+        CREATE TABLE IF NOT EXISTS users 
+        (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER UNIQUE,
+        username TEXT UNIQUE,
+        primogems INTEGER DEFAULT 8000,
+        total_wishes INTEGER DEFAULT 0,
+        pity_4 INTEGER DEFAULT 0,
+        pity_5 INTEGER DEFAULT 0,
+        stardust INTEGER DEFAULT 0,
+        starglitter INTEGER DEFAULT 0,
+        hour_reward DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS inventory 
+        (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        item_name TEXT,
+        item_type TEXT,
+        rarity INTEGER,
+        constellation_level INTEGER DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS wish_log 
+        (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        item_name TEXT,
+        rarity INTEGER,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP    
+        );
+
+        '''
+    )
+
+    await db.commit()
+
+    await dp.start_polling(bot)
+    
+if __name__ == "__main__":
+    asyncio.run(main())
