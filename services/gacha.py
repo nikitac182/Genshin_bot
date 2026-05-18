@@ -89,7 +89,7 @@ async def wish_one_time(user_id: int, target: CallbackQuery | Message):
     
     pity_4, pity_5 = await get_pity(user_id)
     
-    rarity = roll_rarity(pity_4, pity_5)
+    rarity = roll_rarity(pity_4, pity_5, user_banner)
     
     item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, constellation_info = await get_reward(
         user_id, rarity, pity_4, pity_5, user_banner
@@ -151,10 +151,7 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
     total_starglitter = 0
 
     for i in range(10):
-        if pity_4 >= 9:
-            rarity = 4
-        else:
-            rarity = roll_rarity(pity_4, pity_5)
+        rarity = roll_rarity(pity_4, pity_5, user_banner)
         
         item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, constellation_info = await get_reward(
             user_id, rarity, pity_4, pity_5, user_banner
