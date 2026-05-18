@@ -174,6 +174,15 @@ class GachaRandomizer:
             return True
         return False
 
+    def get_banner_info(self) -> str:
+        
+        if self.banner_type == "characters":
+            return "👥 Только 5★ персонажи"
+        elif self.banner_type == "weapons":
+            return "⚔️ Только 5★ оружие"
+        else:
+            return "⭐ Все 5★ персонажи и оружия"
+
 
 def get_random_weapon_by_rarity(rarity: int) -> str:
     gacha = GachaRandomizer()
