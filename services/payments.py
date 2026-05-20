@@ -1,14 +1,5 @@
 from aiogram.types import CallbackQuery, Message
-from config import ADMIN_ID, PAYMENT_INSTRUCTION, TOPUP_REQUEST
-from database import (
-    get_pity,
-    get_primogems,
-    get_rarity,
-    pull_pity,
-    pull_rarity,
-    pull_total_wishes,
-    reduce_primogems
-)
+from config import ADMIN_ID
 from utils import roll_rarity, update_pity
 from state.payment_state import PaymentState
 from aiogram.fsm.context import FSMContext

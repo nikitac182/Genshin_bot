@@ -15,6 +15,7 @@ from database import (
 )
 from utils import roll_rarity, update_pity
 from utils1.randomizer import GachaRandomizer
+from keyboards.inline import back_from_gacha_kb
 
 
 async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner_type: str) -> tuple:
@@ -122,7 +123,7 @@ async def wish_one_time(user_id: int, target: CallbackQuery | Message):
     )
     
     if isinstance(target, CallbackQuery):
-        await target.message.answer(msg, parse_mode="Markdown")
+        await target.message.edit_text(msg, parse_mode="Markdown", reply_markup=back_from_gacha_kb)
         await target.answer()
     else:
         await target.answer(msg)
@@ -196,7 +197,7 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
     )
     
     if isinstance(target, CallbackQuery):
-        await target.message.answer(msg, parse_mode="Markdown")
+        await target.message.edit_text(msg, parse_mode="Markdown", reply_markup=back_from_gacha_kb)
         await target.answer()
     else:
         await target.answer(msg)

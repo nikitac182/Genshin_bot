@@ -150,7 +150,7 @@ class GachaRandomizer:
                 }
             else:
                 return {
-                    "name": random.choice(self.standart_5star_characters),
+                    "name": random.choice(self.standard_5star_characters),
                     "type": "character",
                     "rarity": 5
                 }

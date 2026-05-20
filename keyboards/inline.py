@@ -28,6 +28,25 @@ back_menu_kb = InlineKeyboardMarkup(
     ]
 )
 
+wish_menu_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="⬅️", callback_data="prev_wishes"),
+            InlineKeyboardButton(text="➡️", callback_data="next_wishes")
+        ],
+        [
+            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")
+        ],
+    ]
+)
+
+profile_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [InlineKeyboardButton(text="🕒 История круток", callback_data="story_wishes")],
+        [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu_from_profile")],
+    ]
+)
+
 shop_menu_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -69,5 +88,18 @@ banner_menu_kb = InlineKeyboardMarkup(
         [
             InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")
         ],
+    ]
+)
+
+back_from_gacha_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="🔮 Крутить 1", callback_data="wish_1"),
+            InlineKeyboardButton(text="🔟 Крутить 10", callback_data="wish_10")
+        ],
+        [
+            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")
+        ],
+
     ]
 )

@@ -95,6 +95,35 @@ async def get_character_constellation(user_id: int, character_name: str) -> int:
             result = await cursor.fetchone()
             return result[0] if result else 0
 
+async def get_weapons(user_id: int) -> list:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT item_name FROM inventory WHERE user_id = ? AND (rarity = 4 OR rarity = 5) AND item_type = "weapon"',
+            (user_id,)
+        ) as cursor:
+            result = await cursor.fetchall()
+            return [row[0] for row in result] if result else []
+
+async def get_wish_result_data(user_id: int) -> dict:
+    async with aiosqlite.connect('sqlite.db') as db:
+        cursor = await db.execute(
+            '''SELECT primogems, current_banner, stardust 
+               FROM users WHERE user_id = ?''',
+            (user_id,)
+        )
+        row = await cursor.fetchall()
+        
+        return row[0] if row else None
+
+async def get_characters(user_id: int) -> list:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT item_name FROM inventory WHERE user_id = ? AND item_type = "character"',
+            (user_id,)
+        ) as cursor:
+            result = await cursor.fetchall()
+            return [row[0] for row in result] if result else []
+
 async def update_character_constellation(user_id: int, character_name: str, new_level: int):
     async with aiosqlite.connect('sqlite.db') as db:
         await db.execute(
@@ -167,3 +196,13 @@ async def add_to_wish_log(user_id: int, item_name: str, rarity: int):
             (user_id, item_name, rarity)
         )
         await db.commit()
+
+async def data_wishes(user_id: int):
+    """Получает историю круток пользователя"""
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT item_name, rarity, timestamp FROM wish_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT 3',
+            (user_id,)
+        ) as cursor:
+            result = await cursor.fetchall()
+            return result if result else []
