@@ -9,6 +9,8 @@ from routers.profile import router as profile_router
 from routers.shop import router as shop_router
 from routers.leaderboard import router as leaderboard_router
 from routers.banners import router as banner_router
+from routers.exchange import router as exchange_router
+from services.hourly_reward import start_hourly_reward
 
     
 bot = Bot(TOKEN)
@@ -27,6 +29,7 @@ async def main():
     dp.include_router(shop_router)
     dp.include_router(leaderboard_router)
     dp.include_router(banner_router)
+    dp.include_router(exchange_router)
 
     await db.executescript(
         '''
@@ -52,7 +55,8 @@ async def main():
         item_name TEXT,
         item_type TEXT,
         rarity INTEGER,
-        constellation_level INTEGER DEFAULT 0
+        constellation_level INTEGER DEFAULT 0,
+        refinement_level INTEGER DEFAULT 1
         );
 
         CREATE TABLE IF NOT EXISTS wish_log 
@@ -69,6 +73,8 @@ async def main():
 
     await db.commit()
 
+    await start_hourly_reward()
+    
     await dp.start_polling(bot)
     
 if __name__ == "__main__":

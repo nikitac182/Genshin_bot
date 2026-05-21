@@ -95,15 +95,6 @@ async def get_character_constellation(user_id: int, character_name: str) -> int:
             result = await cursor.fetchone()
             return result[0] if result else 0
 
-async def get_weapons(user_id: int) -> list:
-    async with aiosqlite.connect('sqlite.db') as db:
-        async with db.execute(
-            'SELECT item_name FROM inventory WHERE user_id = ? AND (rarity = 4 OR rarity = 5) AND item_type = "weapon"',
-            (user_id,)
-        ) as cursor:
-            result = await cursor.fetchall()
-            return [row[0] for row in result] if result else []
-
 async def get_wish_result_data(user_id: int) -> dict:
     async with aiosqlite.connect('sqlite.db') as db:
         cursor = await db.execute(
@@ -115,14 +106,14 @@ async def get_wish_result_data(user_id: int) -> dict:
         
         return row[0] if row else None
 
-async def get_characters(user_id: int) -> list:
+async def get_characters_with_constellation(user_id: int) -> list:
     async with aiosqlite.connect('sqlite.db') as db:
         async with db.execute(
-            'SELECT item_name FROM inventory WHERE user_id = ? AND item_type = "character"',
+            'SELECT item_name, constellation_level, rarity FROM inventory WHERE user_id = ? AND item_type = "character" ORDER BY rarity DESC, item_name',
             (user_id,)
         ) as cursor:
             result = await cursor.fetchall()
-            return [row[0] for row in result] if result else []
+            return [(row[0], row[1], row[2]) for row in result] if result else []
 
 async def update_character_constellation(user_id: int, character_name: str, new_level: int):
     async with aiosqlite.connect('sqlite.db') as db:
@@ -141,9 +132,8 @@ async def add_character_with_constellation(user_id: int, character_name: str, ra
             existing = await cursor.fetchone()
         
         if existing:
-
             current_level = existing[1]
-            new_level = min(current_level + 1, 6)
+            new_level = current_level + 1
             
             await db.execute(
                 'UPDATE inventory SET constellation_level = ? WHERE id = ?',
@@ -166,6 +156,41 @@ async def add_weapon(user_id: int, weapon_name: str, rarity: int):
             (user_id, weapon_name, "weapon", rarity, 0)
         )
         await db.commit()
+
+async def add_weapon_with_refinement(user_id: int, weapon_name: str, rarity: int):
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT id, refinement_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "weapon"',
+            (user_id, weapon_name)
+        ) as cursor:
+            existing = await cursor.fetchone()
+        
+        if existing:
+            current_level = existing[1]
+            new_level = current_level + 1
+            
+            await db.execute(
+                'UPDATE inventory SET refinement_level = ? WHERE id = ?',
+                (new_level, existing[0])
+            )
+            await db.commit()
+            return current_level, new_level
+        else:
+            await db.execute(
+                'INSERT INTO inventory (user_id, item_name, item_type, rarity, refinement_level) VALUES (?, ?, ?, ?, ?)',
+                (user_id, weapon_name, "weapon", rarity, 1)  # начинаем с R1
+            )
+            await db.commit()
+            return None, 1
+
+async def get_weapons_with_refinement(user_id: int) -> list:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT item_name, refinement_level, rarity FROM inventory WHERE user_id = ? AND item_type = "weapon" AND rarity >= 4 ORDER BY rarity DESC, item_name',
+            (user_id,)
+        ) as cursor:
+            result = await cursor.fetchall()
+            return [(row[0], row[1], row[2]) for row in result] if result else []
 
 async def get_user_banner(user_id: int) -> str:
     async with aiosqlite.connect('sqlite.db') as db:

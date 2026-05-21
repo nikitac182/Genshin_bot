@@ -16,6 +16,7 @@ from database import (
 from utils import roll_rarity, update_pity
 from utils1.randomizer import GachaRandomizer
 from keyboards.inline import back_from_gacha_kb
+from database import add_weapon_with_refinement
 
 
 async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner_type: str) -> tuple:
@@ -43,9 +44,11 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
                     starglitter_gained += 3
             else:
                 starglitter_gained = 0
+                constellation_info = f"(C0)"
         else:
-            await add_weapon(user_id, item["name"], item["rarity"])
+            old_level, new_level = await add_weapon_with_refinement(user_id, item["name"], item["rarity"])
             starglitter_gained = 2
+                
             
     else:
         item = randomizer.get_5star()
@@ -59,8 +62,9 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
                     starglitter_gained += 15
             else:
                 starglitter_gained = 0
+                constellation_info = f"(C0)"
         else:
-            await add_weapon(user_id, item["name"], item["rarity"])
+            old_level, new_level = await add_weapon_with_refinement(user_id, item["name"], item["rarity"])
             starglitter_gained = 10
 
     await add_stardust_starglitter(user_id, stardust=stardust_gained, starglitter=starglitter_gained)

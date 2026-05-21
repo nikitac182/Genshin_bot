@@ -34,14 +34,14 @@ async def set_profile(call: CallbackQuery):
     total_wishes = await get_total_wishes(call.from_user.id)
     stardust = await get_stardust(call.from_user.id)
     starglitter = await get_starglitter(call.from_user.id)
-    characters_list = await get_characters(call.from_user.id)
-    weapons_list = await get_weapons(call.from_user.id)
+    characters = await get_characters_with_constellation(call.from_user.id)
+    weapons = await get_weapons_with_refinement(call.from_user.id)
     caption = PROFILE_CAPTION.format(
         primogems=primogems,
         total_wishes=total_wishes,
         stardust=stardust,
         starglitter=starglitter,
-        characters_list="\n-".join(characters_list),
-        weapons_list="\n-".join(weapons_list)
+        characters_list="\n-".join(f"{name} (C{level})" for name, level, _ in characters),
+        weapons_list="\n-".join(f"{name} (R{level})" for name, level, _ in weapons)
     )
     await call.message.edit_text(caption, reply_markup=profile_kb)
