@@ -16,10 +16,16 @@ async def check_and_give_hourly_reward():
                 
                 for user in users:
                     user_id = user[0]
+                    is_subscribed = user[1]
+
+                    if is_subscribed:
+                        reward = 150
+                    else:
+                        reward = 100
                     
                     await db.execute(
-                        'UPDATE users SET primogems = primogems + 200, hour_reward = ? WHERE user_id = ?',
-                        (now, user_id)
+                        'UPDATE users SET primogems = primogems + ?, hour_reward = ? WHERE user_id = ?',
+                        (reward, now, user_id)
                     )
                 
                 await db.commit()

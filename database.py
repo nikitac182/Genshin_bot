@@ -231,3 +231,14 @@ async def data_wishes(user_id: int):
         ) as cursor:
             result = await cursor.fetchall()
             return result if result else []
+        
+async def get_user_subscription(user_id: int) -> bool:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute('SELECT is_subscribed FROM users WHERE user_id = ?', (user_id,)) as cursor:
+            result = await cursor.fetchone()
+            return result[0] == 1 if result else False
+
+async def set_user_subscription(user_id: int, subscribed: bool):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute('UPDATE users SET is_subscribed = ? WHERE user_id = ?', (1 if subscribed else 0, user_id))
+        await db.commit()

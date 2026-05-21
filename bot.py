@@ -11,6 +11,7 @@ from routers.leaderboard import router as leaderboard_router
 from routers.banners import router as banner_router
 from routers.exchange import router as exchange_router
 from services.hourly_reward import start_hourly_reward
+from routers.subscription import router as subscription_router
 
     
 bot = Bot(TOKEN)
@@ -30,6 +31,7 @@ async def main():
     dp.include_router(leaderboard_router)
     dp.include_router(banner_router)
     dp.include_router(exchange_router)
+    dp.include_router(subscription_router)
 
     await db.executescript(
         '''
@@ -45,7 +47,8 @@ async def main():
         stardust INTEGER DEFAULT 0,
         starglitter INTEGER DEFAULT 0,
         hour_reward DATETIME DEFAULT CURRENT_TIMESTAMP,
-        current_banner TEXT DEFAULT 'characters'
+        current_banner TEXT DEFAULT 'characters',
+        is_subscribed INTEGER DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS inventory 

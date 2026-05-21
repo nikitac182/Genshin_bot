@@ -15,7 +15,8 @@ menu_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(text="✨ Обмен пыли и блеска", callback_data="exchange")
         ],
         [
-            InlineKeyboardButton(text="🔄 Сменить баннер", callback_data="change_banner")
+            InlineKeyboardButton(text="🔄 Сменить баннер", callback_data="change_banner"),
+            InlineKeyboardButton(text="📢 Бонус за подписку", callback_data="subscription_info")
         ],
     ]
 )
