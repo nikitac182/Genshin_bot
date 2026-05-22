@@ -1,11 +1,14 @@
 from aiogram import Router
 from aiogram.types import CallbackQuery
 from consts import BANNER_NAMES
+from filters.ban_filter import IsNotBanned
 from keyboards.inline import banner_menu_kb, menu_kb
 from database import set_user_banner, get_user_banner
 from utils1.randomizer import GachaRandomizer
 
 router = Router()
+router.message.filter(IsNotBanned())
+
 
 @router.callback_query(lambda c: c.data == 'change_banner')
 async def change_banner_menu(call: CallbackQuery):

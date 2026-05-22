@@ -30,6 +30,16 @@ PAYMENT_CONFIRMED_TEXT = (
     "Баланс обновлен."
 )
 
+HELP_TEXT = """
+    🛡️ Админ команды:
+    /add_primogems <user_id> <amount> - Добавить примогемы
+    /reduce_primogems <user_id> <amount> - Уменьшить примогемы
+    /ban <user_id> <hours> - Забанить пользователя
+    /unban <user_id> - Разбанить пользователя
+    /delete_user <user_id> - Удалить пользователя
+    /get_user <user_id> - Информация о пользователе
+    """
+
 PROFILE_CAPTION = '''
 👤 Ваш профиль:
 

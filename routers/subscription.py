@@ -1,8 +1,11 @@
 from aiogram import Router, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database import set_user_subscription, get_user_subscription
+from filters.ban_filter import IsNotBanned
 
 router = Router()
+router.message.filter(IsNotBanned())
+
 
 # ID канала (можно взять из ссылки: https://t.me/username)
 CHANNEL_ID = "@sshkotik"

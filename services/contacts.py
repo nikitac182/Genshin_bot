@@ -1,6 +1,5 @@
-from aiogram.types import CallbackQuery, Message
-from config import ADMIN_ID, ADMIN_USERNAME
-from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery
+from config import ADMIN_USERNAME
 from consts import CONTACT_ADMIN_MESSAGE
 from keyboards.inline import back_menu_kb
 

@@ -2,6 +2,8 @@ import asyncio
 import aiosqlite
 from datetime import datetime, timedelta
 
+from config import REWARD_NON_SUBSCRIBED, REWARD_SUBSCRIBED
+
 async def check_and_give_hourly_reward():
     while True:
         try:
@@ -19,9 +21,9 @@ async def check_and_give_hourly_reward():
                     is_subscribed = user[1]
 
                     if is_subscribed:
-                        reward = 150
+                        reward = REWARD_SUBSCRIBED
                     else:
-                        reward = 100
+                        reward = REWARD_NON_SUBSCRIBED
                     
                     await db.execute(
                         'UPDATE users SET primogems = primogems + ?, hour_reward = ? WHERE user_id = ?',

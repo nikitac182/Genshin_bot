@@ -1,20 +1,14 @@
-import asyncio
-from email.mime import message
-import aiogram
 from aiogram.filters import Command
-import aiosqlite
 from database import *
-from aiogram import Bot, Dispatcher, types, Router
+from aiogram import types, Router, F
 from services.ban import ban_user, unban_user
 from config import ADMIN_ID
 
 router = Router()
 
-
-
-
+@router.message(F.from_user.id.in_(ADMIN_ID))
 async def admin_commands(message: types.Message):
-    if message.text == '/start':
+    if message.text == '/start' or not message.text:
         return
     try:
         adm_command = message.text.split()
@@ -26,6 +20,9 @@ async def admin_commands(message: types.Message):
             elif command == '/reduce_primogems':
                 await reduce_primogems(int(user_id), int(amount))
                 await message.answer(f"Уменьшено {amount} примогемов у пользователя {user_id}")
+            elif command == '/ban':
+                await ban_user(message, int(user_id), int(amount))
+                await message.answer(f"Пользователь {user_id} заблокирован")
         
         elif len(adm_command) == 2:
             command, user_id = adm_command
@@ -40,9 +37,7 @@ async def admin_commands(message: types.Message):
                 else:
                     await message.answer(f"Пользователь {user_id} не найден")
 
-            elif command == '/ban':
-                await ban_user(message, int(user_id))
-                await message.answer(f"Пользователь {user_id} заблокирован")
+            
 
             elif command == '/unban':
                 await unban_user(message, int(user_id))

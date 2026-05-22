@@ -1,10 +1,13 @@
 from aiogram import Router
 from aiogram.types import CallbackQuery
+from filters.ban_filter import IsNotBanned
 from keyboards.inline import menu_kb
 from database import get_stardust, get_starglitter, get_primogems
 import aiosqlite
 
 router = Router()
+router.message.filter(IsNotBanned())
+
 
 @router.callback_query(lambda c: c.data == 'exchange')
 async def exchange_stuff(call: CallbackQuery):

@@ -2,10 +2,13 @@ from aiogram.types import *
 from aiogram import Router
 from config import COUNT_WISHES_PER_PAGE
 from consts import LAST
+from filters.ban_filter import IsNotBanned
 from keyboards.inline import menu_kb
 from services.user_profile import set_story_wishes, set_profile
 
 router = Router()
+router.message.filter(IsNotBanned())
+
 
 @router.callback_query(lambda c: c.data == 'profile')
 async def handler_set_profile(call: CallbackQuery):

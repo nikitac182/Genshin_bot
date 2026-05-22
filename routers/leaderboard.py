@@ -1,10 +1,13 @@
 from operator import call
 from aiogram.types import *
 from aiogram import  Router
+from filters.ban_filter import IsNotBanned
 from keyboards.inline import back_menu_kb
 from database import *
 
 router = Router()
+router.message.filter(IsNotBanned())
+
 
 @router.callback_query(lambda c: c.data == 'leaderboard')
 async def set_leaderboard(call: CallbackQuery):

@@ -12,7 +12,7 @@ from routers.banners import router as banner_router
 from routers.exchange import router as exchange_router
 from services.hourly_reward import start_hourly_reward
 from routers.subscription import router as subscription_router
-
+from database import get_status
     
 bot = Bot(TOKEN)
 dp = Dispatcher()
@@ -21,7 +21,6 @@ dp = Dispatcher()
 async def main():
 
     db = await aiosqlite.connect('sqlite.db')
-    
     dp.include_router(start_router)
     dp.include_router(wishes_router)
     dp.include_router(profile_router)

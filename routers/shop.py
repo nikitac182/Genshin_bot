@@ -1,15 +1,15 @@
-from aiogram.types import *
+from aiogram.types import CallbackQuery
 from aiogram import Router
-from keyboards.inline import shop_menu_kb, payment_confirm_kb
-from database import *
-from consts import CONTACT_ADMIN_MESSAGE
+from filters.ban_filter import IsNotBanned
+from keyboards.inline import shop_menu_kb
 from services.payments import confirm_payment, process_buy
 from services.contacts import contact_admin
-from state.payment_state import PaymentState
 from aiogram.fsm.context import FSMContext
 from services.payments import admin_confirm_payment
 
 router = Router()
+router.message.filter(IsNotBanned())
+
 
 @router.callback_query(lambda c: c.data == 'primogems_buy')
 async def buy_primogems(call: CallbackQuery):
