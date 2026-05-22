@@ -91,7 +91,6 @@ async def wish_one_time(user_id: int, target: CallbackQuery | Message):
         return
     
     user_banner = await get_user_banner(user_id)
-    
     await reduce_primogems(user_id, 160)
     await pull_total_wishes(user_id, 1)
     
@@ -143,8 +142,6 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
         return
     
     user_banner = await get_user_banner(user_id)
-    item_id = None
-    await set_current_banner(item_id, user_banner)
     await reduce_primogems(user_id, 1600)
     await pull_total_wishes(user_id, 10)
     

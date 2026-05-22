@@ -15,7 +15,7 @@ TOPUP_REQUEST = (
 CONTACT_ADMIN_MESSAGE = 'Для покупки примогемов свяжитесь с администратором:\n\n {admin_username}'
 
 BANNER_NAMES = {
-    "characters": "👥 Ивент (персонажи)",
+    "characters": "👥 Ивентовый",
     "weapons": "⚔️ Оружейный",
     "standard": "⭐ Стандартный"
 }

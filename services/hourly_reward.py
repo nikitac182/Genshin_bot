@@ -9,7 +9,7 @@ async def check_and_give_hourly_reward():
                 now = datetime.now()
                 
                 async with db.execute(
-                    'SELECT user_id FROM users WHERE hour_reward <= ?',
+                    'SELECT user_id, is_subscribed FROM users WHERE hour_reward <= ?',
                     (now - timedelta(hours=1),)
                 ) as cursor:
                     users = await cursor.fetchall()
