@@ -7,6 +7,7 @@ from services.commands import admin_commands
 
 router = Router()
 router.message.filter(IsNotBanned())
+router.callback_query.filter(IsNotBanned())
 
 @router.message(F.from_user.id.in_(ADMIN_ID), Command("help"))
 async def cmd_admin_help(message: types.Message):

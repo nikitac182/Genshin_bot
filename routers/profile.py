@@ -8,6 +8,7 @@ from services.user_profile import set_story_wishes, set_profile
 
 router = Router()
 router.message.filter(IsNotBanned())
+router.callback_query.filter(IsNotBanned())
 
 
 @router.callback_query(lambda c: c.data == 'profile')

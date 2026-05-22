@@ -8,6 +8,7 @@ from utils1.randomizer import GachaRandomizer
 
 router = Router()
 router.message.filter(IsNotBanned())
+router.callback_query.filter(IsNotBanned())
 
 
 @router.callback_query(lambda c: c.data == 'change_banner')

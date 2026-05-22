@@ -5,6 +5,7 @@ from filters.ban_filter import IsNotBanned
 
 router = Router()
 router.message.filter(IsNotBanned())
+router.callback_query.filter(IsNotBanned())
 
 
 # ID канала (можно взять из ссылки: https://t.me/username)

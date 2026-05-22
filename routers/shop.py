@@ -9,6 +9,7 @@ from services.payments import admin_confirm_payment
 
 router = Router()
 router.message.filter(IsNotBanned())
+router.callback_query.filter(IsNotBanned())
 
 
 @router.callback_query(lambda c: c.data == 'primogems_buy')

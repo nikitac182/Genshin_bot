@@ -7,6 +7,7 @@ from database import *
 
 router = Router()
 router.message.filter(IsNotBanned())
+router.callback_query.filter(IsNotBanned())
 
 
 @router.callback_query(lambda c: c.data == 'leaderboard')
