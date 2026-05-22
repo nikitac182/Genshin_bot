@@ -15,7 +15,7 @@ async def start_command(message: types.Message):
     if await get_status(message.from_user.id) == 'banned':
         await message.answer("Вы заблокированы и не можете использовать бота. Пожалуйста, свяжитесь с администратором.")
         return
-    await add_user(message.from_user.id, message.from_user.username)
+    await add_user(message.from_user.id, message.from_user.username, message.from_user.full_name)
     async with aiosqlite.connect('sqlite.db') as db:
         await db.execute(
             'UPDATE users SET hour_reward = ? WHERE user_id = ?',

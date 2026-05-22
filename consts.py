@@ -12,13 +12,23 @@ TOPUP_REQUEST = (
     "Сумма: {amount}₽ ({primogems} гемов)"
 )
 
-CONTACT_ADMIN_MESSAGE = 'Для покупки примогемов свяжитесь с администратором:\n\n {admin_username}'
+CONTACT_ADMIN_MESSAGE = 'Для покупки примогемов свяжитесь с администраторами:\n{admin_username}'
 
 BANNER_NAMES = {
     "characters": "👥 Ивентовый",
     "weapons": "⚔️ Оружейный",
     "standard": "⭐ Стандартный"
 }
+
+PAYMENT_REQUEST_SENT_TEXT = (
+    "Ваш запрос на пополнение отправлен администратору. "
+    "Пожалуйста, дождитесь подтверждения."
+)
+
+PAYMENT_CONFIRMED_TEXT = (
+    "Платеж пользователя @{username} подтвержден. "
+    "Баланс обновлен."
+)
 
 PROFILE_CAPTION = '''
 👤 Ваш профиль:

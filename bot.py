@@ -39,6 +39,7 @@ async def main():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER UNIQUE,
         username TEXT UNIQUE,
+        name TEXT,
         primogems INTEGER DEFAULT 8000,
         total_wishes INTEGER DEFAULT 0,
         pity_4 INTEGER DEFAULT 0,

@@ -1,9 +1,11 @@
 #database.py
 import aiosqlite
 
-async def add_user(user_id, username):
+from config import COUNT_WISHES_PER_PAGE
+
+async def add_user(user_id, username, name):
     async with aiosqlite.connect('sqlite.db') as db:
-        await db.execute('INSERT OR IGNORE INTO users (user_id, username) VALUES (?, ?)', (user_id, username))
+        await db.execute('INSERT OR IGNORE INTO users (user_id, username, name) VALUES (?, ?, ?)', (user_id, username, name))
         await db.commit()
 
 async def add_item(user_id, item_name, item_type, rarity):
@@ -58,7 +60,7 @@ async def get_total_wishes(user_id):
         
 async def get_users_for_leaderboard():
     async with aiosqlite.connect('sqlite.db') as db:
-        async with db.execute('SELECT username, total_wishes FROM users ORDER BY total_wishes DESC LIMIT 10') as cursor:
+        async with db.execute('SELECT name, username, user_id, total_wishes FROM users ORDER BY total_wishes DESC LIMIT 10') as cursor:
             result = await cursor.fetchall()
             return result
         
@@ -263,8 +265,8 @@ async def data_wishes(user_id: int, offset: int = 0) -> list:
     """Получает историю круток пользователя"""
     async with aiosqlite.connect('sqlite.db') as db:
         async with db.execute(
-            'SELECT item_name, rarity, current_banner, timestamp FROM wish_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT 3 OFFSET ?',
-            (user_id, offset)
+            'SELECT item_name, rarity, current_banner, timestamp FROM wish_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?',
+            (user_id, COUNT_WISHES_PER_PAGE, offset)
         ) as cursor:
             result = await cursor.fetchall()
             return result if result else []

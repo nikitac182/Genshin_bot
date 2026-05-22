@@ -1,4 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from config import COUNT_WISHES_PER_PAGE
 from database import get_total_wishes
 
 async def get_wish_menu_kb(
@@ -44,9 +45,9 @@ async def get_wish_menu_kb(
 
 async def get_page(user_id: int, offset: int) -> int:
     """Получает номер страницы для пользователя"""
-    return (offset // 3) 
+    return (offset // COUNT_WISHES_PER_PAGE) 
 
 async def get_max_page(user_id: int, offset: int) -> int:
     """Получает номер последней страницы для пользователя"""
     total_wishes = await get_total_wishes(user_id)
-    return (total_wishes - 1) // 3
+    return (total_wishes - 1) // COUNT_WISHES_PER_PAGE

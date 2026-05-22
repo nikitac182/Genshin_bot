@@ -30,7 +30,14 @@ back_menu_kb = InlineKeyboardMarkup(
     ]
 )
 
-
+confirm_payment_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="✅ Подтвердить", callback_data="admin_confirm_payment"),
+            InlineKeyboardButton(text="❌ Отмена", callback_data="admin_cancel_payment")
+        ],
+    ]
+)
 
 profile_kb = InlineKeyboardMarkup(
     inline_keyboard=[

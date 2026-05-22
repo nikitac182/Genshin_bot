@@ -11,7 +11,7 @@ async def set_story_wishes(call: CallbackQuery, offset: int = 0):
     wishes = await data_wishes(call.from_user.id, offset=offset)
     page = await get_page(call.from_user.id, offset=offset)
     max_page = await get_max_page(call.from_user.id, offset=offset)
-    caption = '📜 История круток:\n\n'
+    caption = '📜 История круток:\n'
     if not wishes:
         caption = "📜 История круток пуста."
     else:
@@ -19,13 +19,9 @@ async def set_story_wishes(call: CallbackQuery, offset: int = 0):
             item_name, rarity, current_banner, timestamp = wish
             caption += f'''
 ═══════════════
-Вы получили:
-
 {'⭐'*rarity} {item_name}
-
 Баннер: {BANNER_NAMES.get(current_banner, 'Неизвестно')}
-время: {timestamp}
-'''
+Время: {timestamp}'''
     
     await call.message.edit_text(
         caption,

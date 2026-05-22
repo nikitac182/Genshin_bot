@@ -1,10 +1,7 @@
-import asyncio
 from operator import call
-import aiogram
-from aiogram.filters import CommandStart
 from aiogram.types import *
-from aiogram import Bot, Dispatcher, types, Router
-from keyboards.inline import menu_kb, back_menu_kb
+from aiogram import  Router
+from keyboards.inline import back_menu_kb
 from database import *
 
 router = Router()
@@ -14,6 +11,8 @@ async def set_leaderboard(call: CallbackQuery):
     caption = f'🏆 Топ игроков по круткам:'
     users = await get_users_for_leaderboard()
     for user in users:
-        username, total_wishes = user
-        caption += f'\n@{username} - {total_wishes} круток'
-    await call.message.edit_text(caption, reply_markup=back_menu_kb)
+        name, username, user_id, total_wishes = user
+        username = f'@{username}'
+        text = f'<a href="tg://user?id={user_id}">{username if username else name}</a>'
+        caption += f'\n{text} - {total_wishes} круток'
+    await call.message.edit_text(caption, reply_markup=back_menu_kb, parse_mode='HTML')

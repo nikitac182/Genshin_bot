@@ -1,5 +1,6 @@
 from aiogram.types import *
 from aiogram import Router
+from config import COUNT_WISHES_PER_PAGE
 from consts import LAST
 from keyboards.inline import menu_kb
 from services.user_profile import set_story_wishes, set_profile
@@ -21,7 +22,7 @@ async def back_to_menu_from_profile(call: CallbackQuery):
 @router.callback_query(lambda c: c.data.startswith('prev_wishes_'))
 async def prev_wishes(call: CallbackQuery):
     page = int(call.data.split('_')[LAST])
-    offset = (page - 1) * 3
+    offset = (page - 1) * COUNT_WISHES_PER_PAGE
     await set_story_wishes(
         call,
         offset=offset
@@ -30,7 +31,7 @@ async def prev_wishes(call: CallbackQuery):
 @router.callback_query(lambda c: c.data.startswith('next_wishes_'))
 async def next_wishes(call: CallbackQuery):
     page = int(call.data.split('_')[LAST])
-    offset = (page + 1) * 3
+    offset = (page + 1) * COUNT_WISHES_PER_PAGE
     await set_story_wishes(
         call,
         offset=offset

@@ -7,7 +7,7 @@ from services.payments import confirm_payment, process_buy
 from services.contacts import contact_admin
 from state.payment_state import PaymentState
 from aiogram.fsm.context import FSMContext
-
+from services.payments import admin_confirm_payment
 
 router = Router()
 
@@ -29,5 +29,15 @@ async def handle_confirm_payment(call: CallbackQuery, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == 'cancel_payment')
 async def handle_cancel_payment(call: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await buy_primogems(call)
+
+@router.callback_query(lambda c: c.data == 'admin_confirm_payment')
+async def handle_admin_confirm_payment(call: CallbackQuery, state: FSMContext):
+    await admin_confirm_payment(call, state)
+    await state.clear()
+
+@router.callback_query(lambda c: c.data == 'admin_cancel_payment')
+async def handle_admin_cancel_payment(call: CallbackQuery, state: FSMContext):
     await state.clear()
     await buy_primogems(call)
