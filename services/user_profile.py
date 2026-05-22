@@ -1,32 +1,40 @@
 from aiogram.types import CallbackQuery, Message
 from config import ADMIN_ID, ADMIN_USERNAME
 from aiogram.fsm.context import FSMContext
-from consts import CONTACT_ADMIN_MESSAGE, PROFILE_CAPTION
+from consts import BANNER_NAMES, CONTACT_ADMIN_MESSAGE, PROFILE_CAPTION
 from keyboards.inline import *
 from database import *
+from services.paginator import get_wish_menu_kb, get_page, get_max_page
 
 
-async def set_story_wishes(call: CallbackQuery):
-    wishes = await data_wishes(call.from_user.id)
+async def set_story_wishes(call: CallbackQuery, offset: int = 0):
+    wishes = await data_wishes(call.from_user.id, offset=offset)
+    page = await get_page(call.from_user.id, offset=offset)
+    max_page = await get_max_page(call.from_user.id, offset=offset)
     caption = '📜 История круток:\n\n'
     if not wishes:
         caption = "📜 История круток пуста."
     else:
         for wish in wishes:
-            item_name, rarity, timestamp = wish
+            item_name, rarity, current_banner, timestamp = wish
             caption += f'''
 ═══════════════
 Вы получили:
 
 {'⭐'*rarity} {item_name}
 
-**Баннер:** {None}
-✨ **Получено:**{None}
+Баннер: {BANNER_NAMES.get(current_banner, 'Неизвестно')}
 время: {timestamp}
-
 '''
     
-    await call.message.edit_text(caption, reply_markup=wish_menu_kb, parse_mode='HTML')
+    await call.message.edit_text(
+        caption,
+        reply_markup=await get_wish_menu_kb(
+            page,
+            max_page
+        ),
+        parse_mode='HTML'
+    )
 
 async def set_profile(call: CallbackQuery):
 

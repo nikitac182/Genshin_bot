@@ -68,6 +68,7 @@ async def main():
         user_id INTEGER,
         item_name TEXT,
         rarity INTEGER,
+        current_banner TEXT DEFAULT 'characters',
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP    
         );
 

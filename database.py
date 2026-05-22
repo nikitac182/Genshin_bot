@@ -203,6 +203,11 @@ async def set_user_banner(user_id: int, banner_type: str):
         await db.execute('UPDATE users SET current_banner = ? WHERE user_id = ?', (banner_type, user_id))
         await db.commit()
 
+async def set_current_banner(item_id: int, banner_type: str):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute('UPDATE wish_log SET current_banner = ? WHERE id = ?', (banner_type, item_id))
+        await db.commit()
+
 async def add_stardust_starglitter(user_id: int, stardust: int = 0, starglitter: int = 0):
     """Добавляет звёздную пыль и блеск пользователю"""
     async with aiosqlite.connect('sqlite.db') as db:
@@ -222,16 +227,26 @@ async def add_to_wish_log(user_id: int, item_name: str, rarity: int):
         )
         await db.commit()
 
-async def data_wishes(user_id: int):
+async def get_id_by_wish_log_entry(user_id: int, item_name: str, rarity: int) -> int:
+    """Получает ID записи в wish_log по данным крутки"""
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT id FROM wish_log WHERE user_id = ? AND item_name = ? AND rarity = ? ORDER BY timestamp DESC LIMIT 1',
+            (user_id, item_name, rarity)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else None
+
+async def data_wishes(user_id: int, offset: int = 0) -> list:
     """Получает историю круток пользователя"""
     async with aiosqlite.connect('sqlite.db') as db:
         async with db.execute(
-            'SELECT item_name, rarity, timestamp FROM wish_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT 3',
-            (user_id,)
+            'SELECT item_name, rarity, current_banner, timestamp FROM wish_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT 3 OFFSET ?',
+            (user_id, offset)
         ) as cursor:
             result = await cursor.fetchall()
             return result if result else []
-        
+
 async def get_user_subscription(user_id: int) -> bool:
     async with aiosqlite.connect('sqlite.db') as db:
         async with db.execute('SELECT is_subscribed FROM users WHERE user_id = ?', (user_id,)) as cursor:

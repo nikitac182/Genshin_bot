@@ -1,5 +1,6 @@
 from aiogram import Router
 from aiogram.types import CallbackQuery
+from consts import BANNER_NAMES
 from keyboards.inline import banner_menu_kb, menu_kb
 from database import set_user_banner, get_user_banner
 from utils1.randomizer import GachaRandomizer
@@ -9,12 +10,8 @@ router = Router()
 @router.callback_query(lambda c: c.data == 'change_banner')
 async def change_banner_menu(call: CallbackQuery):
     current_banner = await get_user_banner(call.from_user.id)
-    banner_names = {
-    "characters": "Ивентовый",
-    "weapons": "Оружейный", 
-    "standard": "Стандартный"
-    }
-    banner_name = banner_names.get(current_banner, "Неизвестно")
+    
+    banner_name = BANNER_NAMES.get(current_banner, "Неизвестно")
 
     await call.message.edit_text(
         f"🔄 **Смена баннера**\n\n"
@@ -31,14 +28,10 @@ async def set_banner(call: CallbackQuery):
     
     await set_user_banner(call.from_user.id, banner_type)
     
-    banner_names_display = {
-        "characters": "👥 Ивентовый",
-        "weapons": "⚔️ Оружейный",
-        "standard": "⭐ Стандартный"
-    }
+
     randomizer = GachaRandomizer(banner_type)
     info = randomizer.get_banner_info()
-    banner_name = banner_names_display.get(banner_type, "Неизвестный")
+    banner_name = BANNER_NAMES.get(banner_type, "Неизвестный")
     
     await call.message.edit_text(
         f"✅ Баннер сменён на **{banner_name}**!\n"

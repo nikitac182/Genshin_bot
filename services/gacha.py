@@ -1,5 +1,7 @@
 from aiogram.types import CallbackQuery, Message
+from consts import BANNER_NAMES
 from database import (
+    get_id_by_wish_log_entry,
     get_pity,
     get_primogems,
     pull_pity,
@@ -12,6 +14,7 @@ from database import (
     add_weapon,
     get_stardust,
     get_starglitter,
+    set_current_banner,
 )
 from utils import roll_rarity, update_pity
 from utils1.randomizer import GachaRandomizer
@@ -68,9 +71,9 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
             starglitter_gained = 10
 
     await add_stardust_starglitter(user_id, stardust=stardust_gained, starglitter=starglitter_gained)
-    
     await add_to_wish_log(user_id, item["name"], item["rarity"])
-    
+    item_id = await get_id_by_wish_log_entry(user_id, item["name"], item["rarity"])
+    await set_current_banner(item_id, banner_type)
     new_pity_4, new_pity_5 = await update_pity(rarity, user_id, pity_4, pity_5)
     
     return item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, constellation_info
@@ -102,11 +105,6 @@ async def wish_one_time(user_id: int, target: CallbackQuery | Message):
     
     await pull_pity(user_id, new_pity_4, new_pity_5)
 
-    banner_names = {
-        "characters": "👥 Ивент (персонажи)",
-        "weapons": "⚔️ Оружейный",
-        "standard": "⭐ Стандартный"
-    }
     stars = "⭐" * item["rarity"]
     
     star_text = []
@@ -122,7 +120,7 @@ async def wish_one_time(user_id: int, target: CallbackQuery | Message):
         f"Вы получили:\n"
         f"{stars} **{item['name']}**{const_line}\n\n"
         f"💎 Осталось примогемов: {await get_primogems(user_id)}\n"
-        f"**Баннер:** {banner_names.get(user_banner, 'Неизвестно')}\n"
+        f"**Баннер:** {BANNER_NAMES.get(user_banner, 'Неизвестно')}\n"
         f"✨ **Получено:**\n{star_line}"
     )
     
@@ -145,7 +143,8 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
         return
     
     user_banner = await get_user_banner(user_id)
-    
+    item_id = None
+    await set_current_banner(item_id, user_banner)
     await reduce_primogems(user_id, 1600)
     await pull_total_wishes(user_id, 10)
     
@@ -178,12 +177,6 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
     
     await pull_pity(user_id, pity_4, pity_5)
     
-    banner_names = {
-        "characters": "👥 Ивентовый",
-        "weapons": "⚔️ Оружейный",
-        "standard": "⭐ Стандартный"
-    }
-    
     star_text = []
     if total_stardust > 0:
         star_text.append(f"✨ +{total_stardust} звёздной пыли")
@@ -196,7 +189,7 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
         f"Вы получили:\n"
         f"{results_text}\n\n"
         f"💎 Осталось примогемов: {await get_primogems(user_id)}\n"
-        f"**Баннер:** {banner_names.get(user_banner, 'Неизвестно')}\n"
+        f"**Баннер:** {BANNER_NAMES.get(user_banner, 'Неизвестно')}\n"
         f"✨ **Получено:**\n{star_line}"
     )
     

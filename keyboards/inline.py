@@ -1,5 +1,6 @@
 from aiogram.types import *
 
+
 menu_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -29,17 +30,7 @@ back_menu_kb = InlineKeyboardMarkup(
     ]
 )
 
-wish_menu_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text="⬅️", callback_data="prev_wishes"),
-            InlineKeyboardButton(text="➡️", callback_data="next_wishes")
-        ],
-        [
-            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")
-        ],
-    ]
-)
+
 
 profile_kb = InlineKeyboardMarkup(
     inline_keyboard=[

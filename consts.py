@@ -4,6 +4,8 @@ PAYMENT_INSTRUCTION = (
     "или напишите админу вручную."
 )
 
+LAST = -1
+
 TOPUP_REQUEST = (
     "💎 Запрос на пополнение:\n\n"
     "Пользователь: @{username} (id: {user_id})\n"
@@ -11,6 +13,12 @@ TOPUP_REQUEST = (
 )
 
 CONTACT_ADMIN_MESSAGE = 'Для покупки примогемов свяжитесь с администратором:\n\n {admin_username}'
+
+BANNER_NAMES = {
+    "characters": "👥 Ивент (персонажи)",
+    "weapons": "⚔️ Оружейный",
+    "standard": "⭐ Стандартный"
+}
 
 PROFILE_CAPTION = '''
 👤 Ваш профиль:
