@@ -35,3 +35,4 @@ PROFILE_CAPTION = '''
 -{weapons_list}
 '''
 
+

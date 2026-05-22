@@ -16,11 +16,33 @@ async def add_primogems(user_id, amount):
         await db.execute('UPDATE users SET primogems = primogems + ? WHERE user_id = ?', (amount, user_id))
         await db.commit()
 
+async def delete_user(user_id):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
+        await db.execute('DELETE FROM inventory WHERE user_id = ?', (user_id,))
+        await db.execute('DELETE FROM wish_log WHERE user_id = ?', (user_id,))
+        await db.commit()
+
+async def get_status(user_id):
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute('SELECT is_banned FROM users WHERE user_id = ?', (user_id,)) as cursor:
+            result = await cursor.fetchone()
+            if result:
+                is_banned = result[0]
+                if is_banned:
+                    return 'banned'
+            return 'active'
+
+async def update_user_ban_status(user_id, is_banned: bool, ban_end_time=None):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute('UPDATE users SET is_banned = ?, ban_end_time = ? WHERE user_id = ?', (1 if is_banned else 0, ban_end_time, user_id))
+        await db.commit()
+
 async def get_player(user_id):
     async with aiosqlite.connect('sqlite.db') as db:
-        async with db.execute('SELECT user_id FROM users WHERE user_id = ?', (user_id,)) as cursor:
+        async with db.execute('SELECT user_id, username FROM users WHERE user_id = ?', (user_id,)) as cursor:
             result = await cursor.fetchone()
-            return result[0] if result else None
+            return result[1] if result else None
 
 async def get_primogems(user_id):
     async with aiosqlite.connect('sqlite.db') as db:

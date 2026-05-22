@@ -17,13 +17,11 @@ from routers.subscription import router as subscription_router
 bot = Bot(TOKEN)
 dp = Dispatcher()
 
-# dp.include_router(admin_router)
 
 async def main():
 
     db = await aiosqlite.connect('sqlite.db')
     
-
     dp.include_router(start_router)
     dp.include_router(wishes_router)
     dp.include_router(profile_router)
@@ -32,6 +30,7 @@ async def main():
     dp.include_router(banner_router)
     dp.include_router(exchange_router)
     dp.include_router(subscription_router)
+    dp.include_router(admin_router)
 
     await db.executescript(
         '''
@@ -48,7 +47,9 @@ async def main():
         starglitter INTEGER DEFAULT 0,
         hour_reward DATETIME DEFAULT CURRENT_TIMESTAMP,
         current_banner TEXT DEFAULT 'characters',
-        is_subscribed INTEGER DEFAULT 0
+        is_subscribed INTEGER DEFAULT 0,
+        is_banned INTEGER DEFAULT 0,
+        ban_end_time DATETIME
         );
 
         CREATE TABLE IF NOT EXISTS inventory 
