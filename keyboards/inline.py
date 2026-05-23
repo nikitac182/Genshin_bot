@@ -60,6 +60,14 @@ profile_kb = InlineKeyboardMarkup(
     ]
 )
 
+def profile_menu_kb(user_id: int):
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu_from_profile")],
+        ]
+
+    )
+
 shop_menu_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [

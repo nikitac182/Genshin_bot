@@ -1,4 +1,5 @@
 from aiogram.types import CallbackQuery, Message
+from aiogram import F
 from aiogram.fsm.context import FSMContext
 from consts import BANNER_NAMES, CONTACT_ADMIN_MESSAGE, PROFILE_CAPTION
 from keyboards.inline import *
@@ -32,7 +33,10 @@ async def set_story_wishes(call: CallbackQuery, offset: int = 0):
         parse_mode='HTML'
     )
 
-async def set_profile(call: CallbackQuery):
+async def set_profile(call: CallbackQuery, user_in_profile_id):
+    if user_in_profile_id != call.from_user.id:
+        await call.answer()
+        return
     primogems = await get_primogems(call.from_user.id)
     total_wishes = await get_total_wishes(call.from_user.id)
     stardust = await get_stardust(call.from_user.id)
@@ -47,7 +51,7 @@ async def set_profile(call: CallbackQuery):
         characters_list="\n-".join(f"{name} (C{level})" for name, level, _ in characters),
         weapons_list="\n-".join(f"{name} (R{level})" for name, level, _ in weapons)
     )
-    await call.message.edit_text(caption, reply_markup=profile_kb)
+    await call.message.edit_text(caption, reply_markup=profile_kb if call.message.chat.type == "private" else profile_menu_kb(call.from_user.id))
 
 async def set_promo_code(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text(

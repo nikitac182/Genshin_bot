@@ -1,10 +1,10 @@
 from aiogram.types import *
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from config import COUNT_WISHES_PER_PAGE
 from consts import LAST
 from filters.ban_filter import IsNotBanned
-from keyboards.inline import menu_kb
+from keyboards.inline import menu_kb, group_menu_kb
 from services.user_profile import process_promo_code, set_promo_code, set_story_wishes, set_profile
 from state.promocode_state import PromoState
 
@@ -18,7 +18,7 @@ async def handler_set_profile(call: CallbackQuery):
     if int(call.from_user.id) != int(call.data.split('_')[1]):
         call.answer()
         return
-    await set_profile(call)
+    await set_profile(call, int(call.data.split('_')[1]))
 
 @router.callback_query(lambda c: c.data == 'story_wishes')
 async def handler_set_story_wishes(call: CallbackQuery):
@@ -26,7 +26,7 @@ async def handler_set_story_wishes(call: CallbackQuery):
 
 @router.callback_query(lambda c: c.data == 'back_to_menu_from_profile')
 async def back_to_menu_from_profile(call: CallbackQuery):
-    await call.message.edit_text('Главное меню', reply_markup=menu_kb)
+    await call.message.edit_text('Главное меню', reply_markup=menu_kb if call.message.chat.type == "private" else group_menu_kb(call.from_user.id))
 
 @router.callback_query(lambda c: c.data.startswith('prev_wishes_'))
 async def prev_wishes(call: CallbackQuery):
