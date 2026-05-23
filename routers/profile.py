@@ -13,6 +13,10 @@ router.message.filter(IsNotBanned())
 router.callback_query.filter(IsNotBanned())
 
 
+@router.callback_query(lambda c: c.data == ('profile'))
+async def handler_set_profile(call: CallbackQuery):
+    await set_profile(call)
+
 @router.callback_query(lambda c: c.data.startswith('profile'))
 async def handler_set_profile(call: CallbackQuery):
     if int(call.from_user.id) != int(call.data.split('_')[1]):

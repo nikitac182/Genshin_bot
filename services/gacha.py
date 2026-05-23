@@ -19,7 +19,7 @@ from database import (
 from filters.ban_filter import check_user_not_banned
 from utils import roll_rarity, update_pity
 from utils1.randomizer import GachaRandomizer
-from keyboards.inline import back_from_gacha_kb
+from keyboards.inline import back_from_gacha_kb, group_menu_kb
 from database import add_weapon_with_refinement
 
 async def wish_one_time(user_id: int, target: CallbackQuery | Message):
@@ -73,7 +73,10 @@ async def wish_one_time(user_id: int, target: CallbackQuery | Message):
     )
     
     if isinstance(target, CallbackQuery):
-        await target.message.edit_text(msg, parse_mode="Markdown", reply_markup=back_from_gacha_kb)
+        await target.message.edit_text(
+            msg,
+            parse_mode="Markdown",
+            reply_markup=back_from_gacha_kb if target.message.chat.type == 'private' else group_menu_kb(target.from_user.id))
         await target.answer()
     else:
         await target.answer(msg)
@@ -145,7 +148,7 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
     )
     
     if isinstance(target, CallbackQuery):
-        await target.message.edit_text(msg, parse_mode="Markdown", reply_markup=back_from_gacha_kb)
+        await target.message.edit_text(msg, parse_mode="Markdown", reply_markup=back_from_gacha_kb if target.message.chat.type == 'private' else group_menu_kb(target.from_user.id))
         await target.answer()
     else:
         await target.answer(msg)

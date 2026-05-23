@@ -33,8 +33,8 @@ async def set_story_wishes(call: CallbackQuery, offset: int = 0):
         parse_mode='HTML'
     )
 
-async def set_profile(call: CallbackQuery, user_in_profile_id):
-    if user_in_profile_id != call.from_user.id:
+async def set_profile(call: CallbackQuery, user_in_profile_id=None):
+    if user_in_profile_id is not None and user_in_profile_id != call.from_user.id:
         await call.answer()
         return
     primogems = await get_primogems(call.from_user.id)

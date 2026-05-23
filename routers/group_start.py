@@ -7,7 +7,7 @@ from datetime import datetime
 import aiosqlite
 
 router = Router()
-router.message.filter(IsNotBanned(), F.chat.type.in_({"private", "group", "supergroup"}))
+router.message.filter(IsNotBanned(), F.chat.type.in_({"group", "supergroup"}))
 
 @router.message(CommandStart())
 async def start_command(message: types.Message):

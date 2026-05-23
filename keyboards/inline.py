@@ -124,3 +124,4 @@ back_from_gacha_kb = InlineKeyboardMarkup(
 
     ]
 )
+
