@@ -38,7 +38,9 @@ HELP_TEXT = """
     /unban <user_id> - Разбанить пользователя
     /delete_user <user_id> - Удалить пользователя
     /get_user <user_id> - Информация о пользователе
-    /set_promo <user_id> <promo_code> - Установить промокод для пользователя
+    /set_promo <code> <reward> - Создать промокод
+    /del_promo <code> - Удалить промокод
+    /list_promo - Список всех промокодов
     /help - Показать это сообщение
     """
 

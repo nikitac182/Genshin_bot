@@ -61,14 +61,10 @@ async def set_promo_code(call: CallbackQuery, state: FSMContext):
 
 async def process_promo_code(message: Message, state: FSMContext):
     user_text = message.text.strip()
+    user_id = message.from_user.id
+    promo_info = await get_promocode_info(user_text)
 
-    await state.update_data(promocode=user_text)
-
-    data = await state.get_data()
-
-    promocode = data['promocode']
-    real_promo = await get_promo(message.from_user.id)
-    if promocode != real_promo:
+    if not promo_info:
         await message.answer(
             "❌ Неверный промокод. Пожалуйста, попробуйте снова или обратитесь к администратору.",
             reply_markup=back_menu_kb
@@ -76,11 +72,49 @@ async def process_promo_code(message: Message, state: FSMContext):
         await state.clear()
         return
     
-    await add_primogems(message.from_user.id, REWARD_PROMO)
+    code, reward, max_uses, used_count, expires_at, used_by = promo_info
 
-    await message.answer(
-        f"✅ Промокод успешно активирован! Вы получили награду в размере {REWARD_PROMO} примогемов!",
-        reply_markup=back_menu_kb
-    )
+    if expires_at:
+        from datetime import datetime
+        expires_date = datetime.fromisoformat(expires_at)
+        if datetime.now() > expires_date:
+            await message.answer(
+                "❌ Срок действия промокода истёк!",
+                reply_markup=back_menu_kb,
+            )
+            await state.clear()
+            return
+    
+    if used_count >= max_uses:
+        await message.answer(
+            f"❌ Лимит активация промокода",
+            reply_markup=back_menu_kb,
+        )
+        await state.clear()
+        return
+
+    used_list = used_by.split(',') if used_by else []
+    if str(user_id) in used_list:
+        await message.answer(
+            "❌ Вы уже использовали этот промокод!",
+            reply_markup=back_menu_kb,
+        )
+        await state.clear()
+        return
+    
+    success, msg, reward_amount = await use_promocode(code, user_id)
+    if success:
+        await add_primogems(user_id, reward_amount)
+        remaining = max_uses - (used_count + 1)
+
+        await message.answer(
+            f"✅ Промокод успешно активирован! Вы получили награду в размере {reward_amount} примогемов!",
+            reply_markup=back_menu_kb
+        )
+    else:
+        await message.answer(
+            f"{msg}",
+            reply_markup=back_menu_kb,
+        )
 
     await state.clear()

@@ -74,6 +74,17 @@ async def main():
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP    
         );
 
+        CREATE TABLE IF NOT EXISTS promocodes 
+        (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT UNIQUE,
+        reward INTEGER,
+        max_uses INTEGER DEFAULT 1,
+        used_count INTEGER DEFAULT 0,
+        expires_at DATETIME,
+        used_by TEXT DEFAULT '',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
         '''
     )
 

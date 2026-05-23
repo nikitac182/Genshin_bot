@@ -1,5 +1,6 @@
 #database.py
 import aiosqlite
+from datetime import datetime, timedelta
 
 from config import COUNT_WISHES_PER_PAGE
 
@@ -23,11 +24,6 @@ async def delete_user(user_id):
         await db.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
         await db.execute('DELETE FROM inventory WHERE user_id = ?', (user_id,))
         await db.execute('DELETE FROM wish_log WHERE user_id = ?', (user_id,))
-        await db.commit()
-
-async def set_promo(user_id, promo_code):
-    async with aiosqlite.connect('sqlite.db') as db:
-        await db.execute('UPDATE users SET promocode = ? WHERE user_id = ?', (promo_code, user_id))
         await db.commit()
 
 async def get_status(user_id):
@@ -84,12 +80,6 @@ async def get_starglitter(user_id):
 async def get_rarity(user_id):
     async with aiosqlite.connect('sqlite.db') as db:
         async with db.execute('SELECT rarity FROM users WHERE user_id = ?', (user_id,)) as cursor:
-            result = await cursor.fetchone()
-            return result[0] if result else None
-        
-async def get_promo(user_id):
-    async with aiosqlite.connect('sqlite.db') as db:
-        async with db.execute('SELECT promocode FROM users WHERE user_id = ?', (user_id,)) as cursor:
             result = await cursor.fetchone()
             return result[0] if result else None
 
@@ -252,7 +242,6 @@ async def add_stardust_starglitter(user_id: int, stardust: int = 0, starglitter:
             await db.execute('UPDATE users SET starglitter = starglitter + ? WHERE user_id = ?', (starglitter, user_id))
         await db.commit()
 
-
 async def add_to_wish_log(user_id: int, item_name: str, rarity: int):
     """Добавляет запись в лог круток"""
     async with aiosqlite.connect('sqlite.db') as db:
@@ -291,4 +280,85 @@ async def get_user_subscription(user_id: int) -> bool:
 async def set_user_subscription(user_id: int, subscribed: bool):
     async with aiosqlite.connect('sqlite.db') as db:
         await db.execute('UPDATE users SET is_subscribed = ? WHERE user_id = ?', (1 if subscribed else 0, user_id))
+        await db.commit()
+
+async def set_promo(code: str, reward: int, max_uses: int = 1, expires_hours: int = None):
+    expires_at = None
+    if expires_hours:
+        expires_at = (datetime.now() + timedelta(hours=expires_hours)).isoformat()
+    
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute(
+            'INSERT INTO promocodes (code, reward, max_uses, expires_at) VALUES (?, ?, ?, ?)',
+            (code, reward, max_uses, expires_at)
+        )
+        await db.commit()
+
+async def get_promocode_info(code: str) -> tuple:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT code, reward, max_uses, used_count, expires_at, used_by FROM promocodes WHERE code = ?',
+            (code,)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result if result else None
+
+async def use_promocode(code: str, user_id: int) -> tuple:
+    from datetime import datetime
+    
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT reward, max_uses, used_count, expires_at, used_by FROM promocodes WHERE code = ?',
+            (code,)
+        ) as cursor:
+            promo = await cursor.fetchone()
+        
+        if not promo:
+            return False, "❌ Промокод не найден!", 0
+        
+        reward, max_uses, used_count, expires_at, used_by = promo
+        
+        if expires_at:
+            expires_date = datetime.fromisoformat(expires_at)
+            if datetime.now() > expires_date:
+                return False, "❌ Срок действия промокода истёк!", 0
+        
+        if used_count >= max_uses:
+            return False, "❌ Лимит активация промокода", 0
+        
+        used_list = used_by.split(',') if used_by else []
+        if str(user_id) in used_list:
+            return False, "❌ Вы уже использовали этот промокод!", 0
+        
+        new_used_count = used_count + 1
+        new_used_by = ','.join(used_list + [str(user_id)]) if used_list else str(user_id)
+        
+        await db.execute(
+            'UPDATE promocodes SET used_count = ?, used_by = ? WHERE code = ?',
+            (new_used_count, new_used_by, code)
+        )
+        await db.commit()
+        
+        return True, f"✅ Промокод активирован! Вы получили {reward} гемов.", reward
+
+async def get_user_promocode_history(user_id: int) -> list:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT code, reward, created_at FROM promocodes WHERE used_by = ?',
+            (str(user_id),)
+        ) as cursor:
+            result = await cursor.fetchall()
+            return result if result else []
+
+async def get_all_promocodes() -> list:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT code, reward, max_uses, used_count, expires_at, used_by, created_at FROM promocodes ORDER BY created_at DESC'
+        ) as cursor:
+            result = await cursor.fetchall()
+            return result if result else []
+
+async def del_promo(code: str):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute('DELETE FROM promocodes WHERE code = ?', (code,))
         await db.commit()

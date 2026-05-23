@@ -24,9 +24,21 @@ async def admin_commands(message: types.Message):
                 await ban_user(message, int(user_id), int(amount))
                 await message.answer(f"Пользователь {user_id} заблокирован")
             elif command == '/set_promo':
-                await set_promo(int(user_id), amount)
-                await message.answer(f"Промокод {amount} установлен для пользователя {user_id}")
+                code = user_id
+                reward = amount
+                await set_promo(code, reward)
+                await message.answer(f"✅ Промокод `{code}` | {reward}💎 | 1 раз")
+
+        elif len(adm_command) == 4:
+            command, code, reward, max_uses = adm_command
+            await set_promo(code, reward, max_uses)
+            await message.answer(f"✅ `{code}` | {reward}💎 | {max_uses} раз")
         
+        elif len(adm_command) == 5:
+            command, code, reward, max_uses, expires = adm_command
+            await set_promo(code, reward, max_uses, expires)
+            await message.answer(f"✅ `{code}` | {reward}💎 | {max_uses} раз | {expires}ч")
+
         elif len(adm_command) == 2:
             command, user_id = adm_command
             if command == '/delete_user':
@@ -39,6 +51,34 @@ async def admin_commands(message: types.Message):
                     await message.answer(f"Пользователь {user_id} найден: @{player}")
                 else:
                     await message.answer(f"Пользователь {user_id} не найден")
+            
+            elif command == '/del_promo':
+                await del_promo(user_id)
+                await message.answer(f"✅ Промокод `{user_id}` удалён!")
+    
+            elif command == '/list_promo':
+                promos = await get_all_promocodes()
+                if not promos:
+                    await message.answer("📋 Список промокодов пуст.")
+                else:
+                    from datetime import datetime
+                    
+                    text = "📋 **Промокоды:**\n\n"
+                    for promo in promos:
+                        code, reward, max_uses, used_count, expires_at, created_at = promo
+                        
+                        if expires_at:
+                            expires_date = datetime.fromisoformat(expires_at)
+                            if datetime.now() > expires_date:
+                                status = "❌ истёк"
+                            else:
+                                status = "✅ активен"
+                        else:
+                            status = "✅ активен"
+                        
+                        text += f"`{code}` | {reward}💎 | {used_count}/{max_uses} | {status}\n"
+                    
+                    await message.answer(text, parse_mode="Markdown")
 
             
 
