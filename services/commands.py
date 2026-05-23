@@ -26,19 +26,19 @@ async def admin_commands(message: types.Message):
             elif command == '/set_promo':
                 code = user_id
                 reward = amount
-                await set_promo(code, reward)
+                await set_promo(code, int(reward))
                 await message.answer(f"✅ Промокод `{code}` | {reward}💎 | 1 раз")
 
         elif len(adm_command) == 4:
             command, code, reward, max_uses = adm_command
             if command == '/set_promo':
-                await set_promo(code, reward, max_uses)
+                await set_promo(code, int(reward), int(max_uses))
                 await message.answer(f"✅ `{code}` | {reward}💎 | {max_uses} раз")
         
         elif len(adm_command) == 5:
             command, code, reward, max_uses, expires = adm_command
             if command == '/set_promo':
-                await set_promo(code, reward, max_uses, expires)
+                await set_promo(code, int(reward), int(max_uses), int(expires))
                 await message.answer(f"✅ `{code}` | {reward}💎 | {max_uses} раз | {expires}ч")
 
         elif len(adm_command) == 2:

@@ -242,12 +242,12 @@ async def add_stardust_starglitter(user_id: int, stardust: int = 0, starglitter:
             await db.execute('UPDATE users SET starglitter = starglitter + ? WHERE user_id = ?', (starglitter, user_id))
         await db.commit()
 
-async def add_to_wish_log(user_id: int, item_name: str, rarity: int):
+async def add_to_wish_log(user_id: int, item_name: str, rarity: int, pity_count: int = 0):
     """Добавляет запись в лог круток"""
     async with aiosqlite.connect('sqlite.db') as db:
         await db.execute(
-            'INSERT INTO wish_log (user_id, item_name, rarity) VALUES (?, ?, ?)',
-            (user_id, item_name, rarity)
+            'INSERT INTO wish_log (user_id, item_name, rarity, pity_count) VALUES (?, ?, ?, ?)',
+            (user_id, item_name, rarity, pity_count)
         )
         await db.commit()
 
@@ -265,7 +265,7 @@ async def data_wishes(user_id: int, offset: int = 0) -> list:
     """Получает историю круток пользователя"""
     async with aiosqlite.connect('sqlite.db') as db:
         async with db.execute(
-            'SELECT item_name, rarity, current_banner, timestamp FROM wish_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?',
+            'SELECT item_name, rarity, current_banner, pity_count, timestamp FROM wish_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?',
             (user_id, COUNT_WISHES_PER_PAGE, offset)
         ) as cursor:
             result = await cursor.fetchall()

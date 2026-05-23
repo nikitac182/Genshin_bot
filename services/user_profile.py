@@ -17,10 +17,11 @@ async def set_story_wishes(call: CallbackQuery, offset: int = 0):
         caption = "📜 История круток пуста."
     else:
         for wish in wishes:
-            item_name, rarity, current_banner, timestamp = wish
+            item_name, rarity, current_banner, pity_count, timestamp = wish
+            pity_text = f" | {pity_count} крутка" if rarity == 5 else ""
             caption += f'''
 ═══════════════
-{'⭐'*rarity} {item_name}
+{'⭐'*rarity} {item_name}{pity_text}
 Баннер: {BANNER_NAMES.get(current_banner, 'Неизвестно')}
 Время: {timestamp}'''
         
@@ -43,9 +44,20 @@ async def set_profile(call: CallbackQuery, user_in_profile_id=None):
     starglitter = await get_starglitter(call.from_user.id)
     characters = await get_characters_with_constellation(call.from_user.id)
     weapons = await get_weapons_with_refinement(call.from_user.id)
+    pity_4, pity_5 = await get_pity(call.from_user.id)
+    user_banner = await get_user_banner(call.from_user.id)
+    if user_banner == "weapons":
+        HARD_PITY_5 = 80
+    else:
+        HARD_PITY_5 = 90
+    HARD_PITY_4 = 10
+    until_5star = max(0, HARD_PITY_5 - pity_5)
+    until_4star = max(0, HARD_PITY_4 - pity_4)
     caption = PROFILE_CAPTION.format(
         primogems=primogems,
         total_wishes=total_wishes,
+        PITY_5=until_5star,
+        PITY_4=until_4star,
         stardust=stardust,
         starglitter=starglitter,
         characters_list="\n-".join(f"{name} (C{level})" for name, level, _ in characters),

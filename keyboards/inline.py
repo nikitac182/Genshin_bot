@@ -100,7 +100,7 @@ payment_confirm_kb = InlineKeyboardMarkup(inline_keyboard=[
 banner_menu_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="👥 Ивент (персонажи)", callback_data="banner_characters"),
+            InlineKeyboardButton(text="👥 Ивентовый", callback_data="banner_characters"),
             InlineKeyboardButton(text="⚔️ Оружейный", callback_data="banner_weapons")
         ],
         [

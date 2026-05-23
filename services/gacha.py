@@ -155,12 +155,13 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
 
 async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner_type: str) -> tuple:
     """Возвращает предмет, обновлённый pity и информацию о наградах"""
-
     randomizer = GachaRandomizer(banner_type)
     
     stardust_gained = 0
     starglitter_gained = 0
     constellation_info = None
+
+    pity_count = pity_5 + 1
     
     if rarity == 3:
         item = randomizer.get_3star()
@@ -173,13 +174,13 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
             old_level, new_level = await add_character_with_constellation(user_id, item["name"], item["rarity"])
             
             if old_level is not None:
-                constellation_info = f"(C{old_level} → C{new_level})"
+                constellation_info = f"(C{new_level})"
                 starglitter_gained = 2
                 if old_level >= 6:
                     starglitter_gained += 3
             else:
                 starglitter_gained = 0
-                constellation_info = f"(C0)"
+                constellation_info = "(C0)"
         else:
             old_level, new_level = await add_weapon_with_refinement(user_id, item["name"], item["rarity"])
             starglitter_gained = 2
@@ -191,19 +192,19 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
             old_level, new_level = await add_character_with_constellation(user_id, item["name"], item["rarity"])
             
             if old_level is not None:
-                constellation_info = f"(C{old_level} → C{new_level})"
+                constellation_info = f"(C{new_level})"
                 starglitter_gained = 10
                 if old_level >= 6:
                     starglitter_gained += 15
             else:
                 starglitter_gained = 0
-                constellation_info = f"(C0)"
+                constellation_info = "(C0)"
         else:
             old_level, new_level = await add_weapon_with_refinement(user_id, item["name"], item["rarity"])
             starglitter_gained = 10
 
     await add_stardust_starglitter(user_id, stardust=stardust_gained, starglitter=starglitter_gained)
-    await add_to_wish_log(user_id, item["name"], item["rarity"])
+    await add_to_wish_log(user_id, item["name"], item["rarity"], pity_count)
     item_id = await get_id_by_wish_log_entry(user_id, item["name"], item["rarity"])
     await set_current_banner(item_id, banner_type)
     new_pity_4, new_pity_5 = await update_pity(rarity, user_id, pity_4, pity_5)
