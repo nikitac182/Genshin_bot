@@ -1,7 +1,4 @@
-from operator import call
-
 from aiogram.types import CallbackQuery, Message
-from config import ADMIN_ID, ADMIN_USERNAME, REWARD_PROMO
 from aiogram.fsm.context import FSMContext
 from consts import BANNER_NAMES, CONTACT_ADMIN_MESSAGE, PROFILE_CAPTION
 from keyboards.inline import *
@@ -27,7 +24,7 @@ async def set_story_wishes(call: CallbackQuery, offset: int = 0):
 Время: {timestamp}'''
         
     await call.message.edit_text(
-        caption + f"\n\nСтраница {page + 1} из {max_page + 1}",
+        caption + f"\n\nСтраница {page + 1} из {max_page + 1}" if max_page != -1 else caption,
         reply_markup=await get_wish_menu_kb(
             page,
             max_page
