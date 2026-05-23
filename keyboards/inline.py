@@ -41,6 +41,7 @@ confirm_payment_kb = InlineKeyboardMarkup(
 
 profile_kb = InlineKeyboardMarkup(
     inline_keyboard=[
+        [InlineKeyboardButton(text="🎫 Ввести промокод", callback_data="promo_code")],
         [InlineKeyboardButton(text="🕒 История круток", callback_data="story_wishes")],
         [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu_from_profile")],
     ]

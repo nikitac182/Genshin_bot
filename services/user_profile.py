@@ -1,3 +1,5 @@
+from operator import call
+
 from aiogram.types import CallbackQuery, Message
 from config import ADMIN_ID, ADMIN_USERNAME
 from aiogram.fsm.context import FSMContext
@@ -5,6 +7,7 @@ from consts import BANNER_NAMES, CONTACT_ADMIN_MESSAGE, PROFILE_CAPTION
 from keyboards.inline import *
 from database import *
 from services.paginator import get_wish_menu_kb, get_page, get_max_page
+from state.promocode_state import PromoState
 
 
 async def set_story_wishes(call: CallbackQuery, offset: int = 0):
@@ -22,9 +25,9 @@ async def set_story_wishes(call: CallbackQuery, offset: int = 0):
 {'⭐'*rarity} {item_name}
 Баннер: {BANNER_NAMES.get(current_banner, 'Неизвестно')}
 Время: {timestamp}'''
-    
+        
     await call.message.edit_text(
-        caption,
+        caption + f"\n\nСтраница {page + 1} из {max_page + 1}",
         reply_markup=await get_wish_menu_kb(
             page,
             max_page
@@ -33,7 +36,6 @@ async def set_story_wishes(call: CallbackQuery, offset: int = 0):
     )
 
 async def set_profile(call: CallbackQuery):
-
     primogems = await get_primogems(call.from_user.id)
     total_wishes = await get_total_wishes(call.from_user.id)
     stardust = await get_stardust(call.from_user.id)
@@ -49,3 +51,26 @@ async def set_profile(call: CallbackQuery):
         weapons_list="\n-".join(f"{name} (R{level})" for name, level, _ in weapons)
     )
     await call.message.edit_text(caption, reply_markup=profile_kb)
+
+async def set_promo_code(call: CallbackQuery, state: FSMContext):
+    await call.message.edit_text(
+        "🎫 Введите промокод для получения награды:",
+        reply_markup=back_menu_kb
+    )
+    await state.set_state(PromoState.waiting_for_promo_code)
+
+async def process_promo_code(message: Message, state: FSMContext):
+    user_text = message.text.strip()
+
+    await state.update_data(promocode=user_text)
+
+    data = await state.get_data()
+
+    promocode = data['promocode']
+
+    await message.answer(
+        f"🎫 Вы ввели промокод: {promocode}",
+        reply_markup=back_menu_kb
+    )
+
+    await state.clear()
