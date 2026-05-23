@@ -31,13 +31,15 @@ async def admin_commands(message: types.Message):
 
         elif len(adm_command) == 4:
             command, code, reward, max_uses = adm_command
-            await set_promo(code, reward, max_uses)
-            await message.answer(f"✅ `{code}` | {reward}💎 | {max_uses} раз")
+            if command == '/set_promo':
+                await set_promo(code, reward, max_uses)
+                await message.answer(f"✅ `{code}` | {reward}💎 | {max_uses} раз")
         
         elif len(adm_command) == 5:
             command, code, reward, max_uses, expires = adm_command
-            await set_promo(code, reward, max_uses, expires)
-            await message.answer(f"✅ `{code}` | {reward}💎 | {max_uses} раз | {expires}ч")
+            if command == '/set_promo':
+                await set_promo(code, reward, max_uses, expires)
+                await message.answer(f"✅ `{code}` | {reward}💎 | {max_uses} раз | {expires}ч")
 
         elif len(adm_command) == 2:
             command, user_id = adm_command

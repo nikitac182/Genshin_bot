@@ -11,7 +11,6 @@ router.callback_query.filter(IsNotBanned())
 
 @router.message(F.from_user.id.in_(ADMIN_ID), Command("help"))
 async def cmd_admin_help(message: types.Message):
-    
     await message.answer(HELP_TEXT)
 
 @router.message(F.from_user.id.in_(ADMIN_ID))
