@@ -89,6 +89,28 @@ async def get_pity(user_id):
             result = await cursor.fetchone()
             return (result[0], result[1]) if result else (None, None)
 
+async def get_guarantee_5star(user_id: int) -> bool:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute('SELECT guarantee_5star FROM users WHERE user_id = ?', (user_id,)) as cursor:
+            result = await cursor.fetchone()
+            return result[0] == 1 if result else False
+
+async def set_guarantee_5star(user_id: int, guaranteed: bool):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute('UPDATE users SET guarantee_5star = ? WHERE user_id = ?', (1 if guaranteed else 0, user_id))
+        await db.commit()
+
+async def get_guarantee_4star(user_id: int) -> bool:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute('SELECT guarantee_4star FROM users WHERE user_id = ?', (user_id,)) as cursor:
+            result = await cursor.fetchone()
+            return result[0] == 1 if result else False
+
+async def set_guarantee_4star(user_id: int, guaranteed: bool):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute('UPDATE users SET guarantee_4star = ? WHERE user_id = ?', (1 if guaranteed else 0, user_id))
+        await db.commit()
+
 async def reduce_primogems(user_id, amount):
     '''Уменьшает количество примогемов у пользователя на указанную сумму.'''
     async with aiosqlite.connect('sqlite.db') as db:

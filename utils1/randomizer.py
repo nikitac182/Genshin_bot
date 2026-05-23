@@ -99,61 +99,89 @@ class GachaRandomizer:
             "rarity": 3
         }
     
-    def get_4star(self) -> Dict:
+    def get_4star(self, guarantee: bool = False) -> Dict:
         if self.banner_type == "weapons":
-            if random.random() < 0.75:
+            if guarantee:
                 return {
-                    "name": random.choice(self.weapons_4star),
-                    "type": "weapon",
-                    "rarity": 4
-                }
+                        "name": random.choice(self.weapons_4star),
+                        "type": "weapon",
+                        "rarity": 4
+                    }
             else:
-                return {
-                    "name": random.choice(self.characters_4star),
-                    "type": "character",
-                    "rarity": 4
-                }
+                if random.random() < 0.75:
+                    return {
+                        "name": random.choice(self.weapons_4star),
+                        "type": "weapon",
+                        "rarity": 4
+                    }
+                else:
+                    return {
+                        "name": random.choice(self.characters_4star),
+                        "type": "character",
+                        "rarity": 4
+                    }
         else:
-            if random.random() < 0.5:
+            if guarantee:
                 return {
                     "name": random.choice(self.characters_4star),
                     "type": "character",
                     "rarity": 4
                 }
             else:
-                return {
-                    "name": random.choice(self.weapons_4star),
-                    "type": "weapon",
-                    "rarity": 4
-                }
+                if random.random() < 0.5:
+                    return {
+                        "name": random.choice(self.characters_4star),
+                        "type": "character",
+                        "rarity": 4
+                    }
+                else:
+                    return {
+                        "name": random.choice(self.weapons_4star),
+                        "type": "weapon",
+                        "rarity": 4
+                    }
     
-    def get_5star(self) -> Dict:
+    def get_5star(self, guarantee: bool = False) -> Dict:
         if self.banner_type == "weapons":
-            if random.random() < 0.75:
+            if guarantee:
                 return {
-                    "name": random.choice(self.banner_weapons_5star),
-                    "type": "weapon",
-                    "rarity": 5
-                }
+                        "name": random.choice(self.banner_weapons_5star),
+                        "type": "weapon",
+                        "rarity": 5
+                    }
             else:
-                return {
-                    "name": random.choice(self.standart_weapons_5star),
-                    "type": "weapon",
-                    "rarity": 5
-                }
+                if random.random() < 0.75:
+                    return {
+                        "name": random.choice(self.banner_weapons_5star),
+                        "type": "weapon",
+                        "rarity": 5
+                    }
+                else:
+                    return {
+                        "name": random.choice(self.standart_weapons_5star),
+                        "type": "weapon",
+                        "rarity": 5
+                    }
         elif self.banner_type == "characters":
-            if random.random() < 0.5:
+            if guarantee:
                 return {
                     "name": random.choice(self.banner_5star_characters),
                     "type": "character",
                     "rarity": 5
                 }
             else:
-                return {
-                    "name": random.choice(self.standard_5star_characters),
-                    "type": "character",
-                    "rarity": 5
-                }
+                if random.random() < 0.5:
+                    return {
+                        "name": random.choice(self.banner_5star_characters),
+                        "type": "character",
+                        "rarity": 5
+                    }
+                else:
+                    return {
+                        "name": random.choice(self.standard_5star_characters),
+                        "type": "character",
+                        "rarity": 5
+                    }
         else:
             if random.random() < 0.5:
                 return {

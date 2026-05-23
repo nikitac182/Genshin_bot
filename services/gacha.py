@@ -12,9 +12,11 @@ from database import (
     get_user_banner,
     add_character_with_constellation,
     add_weapon,
-    get_stardust,
-    get_starglitter,
     set_current_banner,
+    get_guarantee_5star,
+    set_guarantee_5star,
+    get_guarantee_4star,
+    set_guarantee_4star,
 )
 from filters.ban_filter import check_user_not_banned
 from utils import roll_rarity, update_pity
@@ -169,9 +171,14 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
         await add_weapon(user_id, item["name"], item["rarity"])
         
     elif rarity == 4:
-        item = randomizer.get_4star()
+        guarantee_4star = await get_guarantee_4star(user_id)
+        item = randomizer.get_4star(guarantee_4star)
         if item["type"] == "character":
             old_level, new_level = await add_character_with_constellation(user_id, item["name"], item["rarity"])
+            if banner_type != "weapons":
+                await set_guarantee_4star(user_id, False)
+            else:
+                await set_guarantee_4star(user_id, True)
             
             if old_level is not None:
                 constellation_info = f"(C{new_level})"
@@ -181,15 +188,22 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
             else:
                 starglitter_gained = 0
                 constellation_info = "(C0)"
-        else:
+        else: 
+            if banner_type != "weapons":
+                await set_guarantee_4star(user_id, True)
+            else:
+                await set_guarantee_4star(user_id, False)
             old_level, new_level = await add_weapon_with_refinement(user_id, item["name"], item["rarity"])
             starglitter_gained = 2
                 
             
     else:
-        item = randomizer.get_5star()
+        guarantee_5star = await get_guarantee_5star(user_id)
+        item = randomizer.get_5star(guarantee_5star)
         if item["type"] == "character":
             old_level, new_level = await add_character_with_constellation(user_id, item["name"], item["rarity"])
+            if banner_type != "weapons":
+                await set_guarantee_5star(user_id, False)
             
             if old_level is not None:
                 constellation_info = f"(C{new_level})"
@@ -200,6 +214,10 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
                 starglitter_gained = 0
                 constellation_info = "(C0)"
         else:
+            if banner_type != "weapons":
+                await set_guarantee_5star(user_id, True)
+            else:
+                await set_guarantee_5star(user_id, False)
             old_level, new_level = await add_weapon_with_refinement(user_id, item["name"], item["rarity"])
             starglitter_gained = 10
 
