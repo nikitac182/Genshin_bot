@@ -22,6 +22,19 @@ menu_kb = InlineKeyboardMarkup(
     ]
 )
 
+def group_menu_kb(user_id: int):
+    return InlineKeyboardMarkup(
+    inline_keyboard = [
+            [
+                InlineKeyboardButton(text="🔮 Крутить 1", callback_data=f"wish_1_{user_id}"),
+                InlineKeyboardButton(text="🔟 Крутить 10", callback_data=f"wish_10_{user_id}")
+            ],
+            [
+                InlineKeyboardButton(text="👤 Профиль", callback_data=f"profile_{user_id}")
+            ],
+        ]
+    )
+
 back_menu_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [

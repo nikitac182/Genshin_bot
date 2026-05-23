@@ -20,7 +20,8 @@ class IsNotBanned(BaseFilter):
             return False
         
         return True
-    
+
+
 async def check_user_not_banned(user_id: int) -> bool:
     status = await get_status(user_id)
     return status != 'banned'

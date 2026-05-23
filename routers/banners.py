@@ -13,6 +13,7 @@ router.callback_query.filter(IsNotBanned())
 
 @router.callback_query(lambda c: c.data == 'change_banner')
 async def change_banner_menu(call: CallbackQuery):
+    
     current_banner = await get_user_banner(call.from_user.id)
     
     banner_name = BANNER_NAMES.get(current_banner, "Неизвестно")

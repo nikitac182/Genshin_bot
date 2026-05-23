@@ -2,13 +2,12 @@ from aiogram.filters import CommandStart
 from aiogram import types, Router, F
 from database import add_user, get_status
 from filters.ban_filter import IsNotBanned
-from keyboards.inline import menu_kb
+from keyboards.inline import menu_kb, group_menu_kb
 from datetime import datetime
 import aiosqlite
 
 router = Router()
-router.message.filter(IsNotBanned(), F.chat.type == "private")
-
+router.message.filter(IsNotBanned(), F.chat.type.in_({"private", "group", "supergroup"}))
 
 @router.message(CommandStart())
 async def start_command(message: types.Message):
@@ -23,4 +22,7 @@ async def start_command(message: types.Message):
             (datetime.now(), message.from_user.id)
         )
         await db.commit()
-    await message.answer('Главное меню', reply_markup=menu_kb)
+    await message.reply(
+        f'Главное меню пользователя {message.from_user.username}',
+        reply_markup=group_menu_kb(message.from_user.id)
+    )

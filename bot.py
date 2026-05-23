@@ -10,6 +10,7 @@ from routers.shop import router as shop_router
 from routers.leaderboard import router as leaderboard_router
 from routers.banners import router as banner_router
 from routers.exchange import router as exchange_router
+from routers.group_start import router as group_router
 from services.hourly_reward import start_hourly_reward
 from routers.subscription import router as subscription_router
 from database import get_status
@@ -21,6 +22,7 @@ dp = Dispatcher()
 async def main():
 
     db = await aiosqlite.connect('sqlite.db')
+    dp.include_router(group_router)
     dp.include_router(start_router)
     dp.include_router(wishes_router)
     dp.include_router(profile_router)
