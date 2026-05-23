@@ -25,6 +25,11 @@ async def delete_user(user_id):
         await db.execute('DELETE FROM wish_log WHERE user_id = ?', (user_id,))
         await db.commit()
 
+async def set_promo(user_id, promo_code):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute('UPDATE users SET promocode = ? WHERE user_id = ?', (promo_code, user_id))
+        await db.commit()
+
 async def get_status(user_id):
     async with aiosqlite.connect('sqlite.db') as db:
         async with db.execute('SELECT is_banned FROM users WHERE user_id = ?', (user_id,)) as cursor:
@@ -82,6 +87,12 @@ async def get_rarity(user_id):
             result = await cursor.fetchone()
             return result[0] if result else None
         
+async def get_promo(user_id):
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute('SELECT promocode FROM users WHERE user_id = ?', (user_id,)) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else None
+
 async def get_pity(user_id):
     async with aiosqlite.connect('sqlite.db') as db:
         async with db.execute('SELECT pity_4, pity_5 FROM users WHERE user_id = ?', (user_id,)) as cursor:

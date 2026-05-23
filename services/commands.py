@@ -23,6 +23,9 @@ async def admin_commands(message: types.Message):
             elif command == '/ban':
                 await ban_user(message, int(user_id), int(amount))
                 await message.answer(f"Пользователь {user_id} заблокирован")
+            elif command == '/set_promo':
+                await set_promo(int(user_id), amount)
+                await message.answer(f"Промокод {amount} установлен для пользователя {user_id}")
         
         elif len(adm_command) == 2:
             command, user_id = adm_command

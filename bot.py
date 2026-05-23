@@ -49,7 +49,8 @@ async def main():
         current_banner TEXT DEFAULT 'characters',
         is_subscribed INTEGER DEFAULT 0,
         is_banned INTEGER DEFAULT 0,
-        ban_end_time DATETIME
+        ban_end_time DATETIME,
+        promocode TEXT
         );
 
         CREATE TABLE IF NOT EXISTS inventory 

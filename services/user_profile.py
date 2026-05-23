@@ -1,7 +1,7 @@
 from operator import call
 
 from aiogram.types import CallbackQuery, Message
-from config import ADMIN_ID, ADMIN_USERNAME
+from config import ADMIN_ID, ADMIN_USERNAME, REWARD_PROMO
 from aiogram.fsm.context import FSMContext
 from consts import BANNER_NAMES, CONTACT_ADMIN_MESSAGE, PROFILE_CAPTION
 from keyboards.inline import *
@@ -67,9 +67,19 @@ async def process_promo_code(message: Message, state: FSMContext):
     data = await state.get_data()
 
     promocode = data['promocode']
+    real_promo = await get_promo(message.from_user.id)
+    if promocode != real_promo:
+        await message.answer(
+            "❌ Неверный промокод. Пожалуйста, попробуйте снова или обратитесь к администратору.",
+            reply_markup=back_menu_kb
+        )
+        await state.clear()
+        return
+    
+    await add_primogems(message.from_user.id, REWARD_PROMO)
 
     await message.answer(
-        f"🎫 Вы ввели промокод: {promocode}",
+        f"✅ Промокод успешно активирован! Вы получили награду в размере {REWARD_PROMO} примогемов!",
         reply_markup=back_menu_kb
     )
 

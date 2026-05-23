@@ -38,6 +38,8 @@ HELP_TEXT = """
     /unban <user_id> - Разбанить пользователя
     /delete_user <user_id> - Удалить пользователя
     /get_user <user_id> - Информация о пользователе
+    /set_promo <user_id> <promo_code> - Установить промокод для пользователя
+    /help - Показать это сообщение
     """
 
 PROFILE_CAPTION = '''
