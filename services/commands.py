@@ -41,24 +41,9 @@ async def admin_commands(message: types.Message):
                 await set_promo(code, int(reward), int(max_uses), int(expires))
                 await message.answer(f"✅ `{code}` | {reward}💎 | {max_uses} раз | {expires}ч")
 
-        elif len(adm_command) == 2:
-            command, user_id = adm_command
-            if command == '/delete_user':
-                await delete_user(int(user_id))
-                await message.answer(f"Пользователь {user_id} удален")
-            
-            elif command == '/get_user':
-                player = await get_player(int(user_id))
-                if player:
-                    await message.answer(f"Пользователь {user_id} найден: @{player}")
-                else:
-                    await message.answer(f"Пользователь {user_id} не найден")
-            
-            elif command == '/del_promo':
-                await del_promo(user_id)
-                await message.answer(f"✅ Промокод `{user_id}` удалён!")
-    
-            elif command == '/list_promo':
+        elif len(adm_command) == 1:
+            command = adm_command
+            if command == '/list_promo':
                 promos = await get_all_promocodes()
                 if not promos:
                     await message.answer("📋 Список промокодов пуст.")
@@ -79,8 +64,24 @@ async def admin_commands(message: types.Message):
                             status = "✅ активен"
                         
                         text += f"`{code}` | {reward}💎 | {used_count}/{max_uses} | {status}\n"
-                    
                     await message.answer(text, parse_mode="Markdown")
+
+        elif len(adm_command) == 2:
+            command, user_id = adm_command
+            if command == '/delete_user':
+                await delete_user(int(user_id))
+                await message.answer(f"Пользователь {user_id} удален")
+            
+            elif command == '/get_user':
+                player = await get_player(int(user_id))
+                if player:
+                    await message.answer(f"Пользователь {user_id} найден: @{player}")
+                else:
+                    await message.answer(f"Пользователь {user_id} не найден")
+            
+            elif command == '/del_promo':
+                await del_promo(user_id)
+                await message.answer(f"✅ Промокод `{user_id}` удалён!")
 
             
 
