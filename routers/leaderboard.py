@@ -34,5 +34,5 @@ async def set_leaderboard(call: CallbackQuery):
         text = f'<a href="tg://user?id={uid}">{username if username else name}</a>'
         caption += f'\n{i}. {text} - {total_wishes} круток'
         i += 1
-    caption += f'═══════════════\n📊 Ваша позиция: {position}/{total_users}'
+    caption += f'\n═══════════════\n📊 Ваша позиция: {position}/{total_users}'
     await call.message.edit_text(caption, reply_markup=back_menu_kb, parse_mode='HTML')
