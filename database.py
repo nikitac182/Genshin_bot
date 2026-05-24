@@ -287,7 +287,7 @@ async def data_wishes(user_id: int, offset: int = 0) -> list:
     """Получает историю круток пользователя"""
     async with aiosqlite.connect('sqlite.db') as db:
         async with db.execute(
-            'SELECT item_name, rarity, current_banner, pity_count, timestamp FROM wish_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?',
+            'SELECT item_name, rarity, current_banner, pity_count, timestamp FROM wish_log WHERE user_id = ? ORDER BY timestamp DESC, id DESC LIMIT ? OFFSET ?',
             (user_id, COUNT_WISHES_PER_PAGE, offset)
         ) as cursor:
             result = await cursor.fetchall()
