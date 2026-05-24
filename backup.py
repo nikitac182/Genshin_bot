@@ -7,7 +7,7 @@ from datetime import datetime
 async def backup_database():
     """Создаёт бэкап базы данных"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_name = f"backups_{timestamp}.db"
+    backup_name = f"backups/sqlite_{timestamp}.db"
     
     import os
     os.makedirs("backups", exist_ok=True)

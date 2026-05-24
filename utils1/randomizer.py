@@ -84,13 +84,13 @@ class GachaRandomizer:
             "Кромсатель пиков", "Клятва свободы", 
         ]
 
-        self.standart_weapons_5star = [
+        self.standard_weapons_5star = [
             "Небесный меч", "Нефритовый коршун", "Волчья погибель", "Небесное величие",
             "Лук Амоса", "Небесное крыло", "Молитва святым ветрам", "Небесный атлас",
             "Небесная ось", "Меч Сокола"
         ]
 
-        self.all_5star_weapons = self.banner_weapons_5star + self.standart_weapons_5star
+        self.all_5star_weapons = self.banner_weapons_5star + self.standard_weapons_5star
     
     def get_3star(self) -> Dict:
         return {

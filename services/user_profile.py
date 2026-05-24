@@ -51,8 +51,6 @@ async def set_profile(call: CallbackQuery, user_in_profile_id=None):
     else:
         HARD_PITY_5 = 90
     HARD_PITY_4 = 10
-    pity_4 = int(pity_4) if pity_4 is not None else 0
-    pity_5 = int(pity_5) if pity_5 is not None else 0
     until_5star = max(0, HARD_PITY_5 - pity_5)
     until_4star = max(0, HARD_PITY_4 - pity_4)
     caption = PROFILE_CAPTION.format(

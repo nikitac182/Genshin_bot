@@ -218,7 +218,7 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
                 constellation_info = "(C0)"
         else:
             if banner_type == "weapons":
-                if item["name"] in randomizer.standart_weapons_5star:
+                if item["name"] in randomizer.standard_weapons_5star:
                     await set_guarantee_5star(user_id, True)
                 else:
                     await set_guarantee_5star(user_id, False)

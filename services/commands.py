@@ -1,4 +1,3 @@
-from aiogram.filters import Command
 from database import *
 from aiogram import types, Router, F
 from services.ban import ban_user, unban_user
