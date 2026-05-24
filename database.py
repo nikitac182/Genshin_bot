@@ -87,7 +87,7 @@ async def get_pity(user_id):
     async with aiosqlite.connect('sqlite.db') as db:
         async with db.execute('SELECT pity_4, pity_5 FROM users WHERE user_id = ?', (user_id,)) as cursor:
             result = await cursor.fetchone()
-            return (result[0], result[1]) if result else (None, None)
+            return (result[0], result[1]) if result else (0, 0)
 
 async def get_guarantee_5star(user_id: int) -> bool:
     async with aiosqlite.connect('sqlite.db') as db:
