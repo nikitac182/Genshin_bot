@@ -1,5 +1,4 @@
 import asyncio
-import aiosqlite
 from aiogram import Bot, Dispatcher
 from config import TOKEN
 from routers.admin import router as admin_router
@@ -13,12 +12,10 @@ from routers.exchange import router as exchange_router
 from routers.group_start import router as group_router
 from services.hourly_reward import start_hourly_reward
 from routers.subscription import router as subscription_router
-from database import get_status
 from migrations import run_migrations 
     
 bot = Bot(TOKEN)
 dp = Dispatcher()
-
 
 async def main():
 

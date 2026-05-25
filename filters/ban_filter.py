@@ -1,6 +1,7 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message, CallbackQuery
 from database import get_status
+from config import ADMIN_ID
 
 
 class IsNotBanned(BaseFilter):
@@ -11,6 +12,9 @@ class IsNotBanned(BaseFilter):
             user_id = obj.from_user.id
         else:
             return False
+
+        if user_id in ADMIN_ID:
+            return True
 
         status = await get_status(user_id)
         
@@ -23,5 +27,7 @@ class IsNotBanned(BaseFilter):
 
 
 async def check_user_not_banned(user_id: int) -> bool:
+    if user_id in ADMIN_ID:
+        return True
     status = await get_status(user_id)
     return status != 'banned'

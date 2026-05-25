@@ -8,7 +8,6 @@ async def ban_user(message: Message, user_id: int, duration: int):
         is_banned=True,
         ban_end_time=duration
     )
-    await delete_user(user_id)
     await message.answer(
         f"Пользователь с ID {user_id} был забанен на {duration} часов."
     )

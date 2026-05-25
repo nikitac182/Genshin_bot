@@ -29,7 +29,8 @@ async def handler_set_story_wishes(call: CallbackQuery):
     await set_story_wishes(call)
 
 @router.callback_query(lambda c: c.data == 'back_to_menu_from_profile')
-async def back_to_menu_from_profile(call: CallbackQuery):
+async def back_to_menu_from_profile(call: CallbackQuery, state: FSMContext):
+    await state.clear()
     await call.message.edit_text('Главное меню', reply_markup=menu_kb if call.message.chat.type == "private" else group_menu_kb(call.from_user.id))
 
 @router.callback_query(lambda c: c.data.startswith('prev_wishes_'))

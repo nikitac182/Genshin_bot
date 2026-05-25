@@ -41,7 +41,7 @@ async def admin_commands(message: types.Message):
                 await message.answer(f"✅ `{code}` | {reward}💎 | {max_uses} раз | {expires}ч")
 
         elif len(adm_command) == 1:
-            command = adm_command
+            command = adm_command[0]
             if command == '/list_promo':
                 promos = await get_all_promocodes()
                 if not promos:
@@ -51,7 +51,7 @@ async def admin_commands(message: types.Message):
                     
                     text = "📋 **Промокоды:**\n\n"
                     for promo in promos:
-                        code, reward, max_uses, used_count, expires_at, created_at = promo
+                        code, reward, max_uses, used_count, expires_at, used_by, created_at = promo
                         
                         if expires_at:
                             expires_date = datetime.fromisoformat(expires_at)
@@ -86,6 +86,5 @@ async def admin_commands(message: types.Message):
 
             elif command == '/unban':
                 await unban_user(message, int(user_id))
-                await message.answer(f"Пользователь {user_id} разблокирован")
     except Exception as e:
         await message.answer(f"Ошибка при выполнении команды: {str(e)}")

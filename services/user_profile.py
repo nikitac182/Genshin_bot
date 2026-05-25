@@ -85,6 +85,10 @@ async def process_promo_code(message: Message, state: FSMContext):
         await state.clear()
         return
     
+    if user_text.startswith('/'):
+        await state.clear()
+        return
+
     code, reward, max_uses, used_count, expires_at, used_by = promo_info
 
     if expires_at:
