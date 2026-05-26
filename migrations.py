@@ -23,11 +23,12 @@ async def run_migrations():
             current_banner TEXT DEFAULT 'characters',
             is_subscribed INTEGER DEFAULT 0,
             is_banned INTEGER DEFAULT 0,
-            ban_end_time DATETIME
+            ban_end_time DATETIME,
+            start_count INTEGER DEFAULT 0
             )
         ''')
         
-        # await add_column_if_not_exists(db, 'users', 'guarantee_5star', 'INTEGER DEFAULT 0') пример
+        await add_column_if_not_exists(db, 'users', 'start_count', 'INTEGER DEFAULT 0')
         
         await db.execute('''
             CREATE TABLE IF NOT EXISTS inventory 

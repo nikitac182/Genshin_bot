@@ -6,7 +6,7 @@ from config import COUNT_WISHES_PER_PAGE
 
 async def add_user(user_id, username, name):
     async with aiosqlite.connect('sqlite.db') as db:
-        await db.execute('INSERT OR IGNORE INTO users (user_id, username, name) VALUES (?, ?, ?)', (user_id, username, name))
+        await db.execute('INSERT OR IGNORE INTO users (user_id, username, name, start_count) VALUES (?, ?, ?, 0)', (user_id, username, name))
         await db.commit()
 
 async def add_item(user_id, item_name, item_type, rarity):
@@ -383,4 +383,22 @@ async def get_all_promocodes() -> list:
 async def del_promo(code: str):
     async with aiosqlite.connect('sqlite.db') as db:
         await db.execute('DELETE FROM promocodes WHERE code = ?', (code,))
+        await db.commit()
+
+async def is_first_start(user_id: int) -> bool:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT start_count FROM users WHERE user_id = ?',
+            (user_id,)
+        ) as cursor:
+            result = await cursor.fetchone()
+            # Если записи нет или start_count = 0, то первый запуск
+            return not result or result[0] == 0
+
+async def increment_start_count(user_id: int):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute(
+            'UPDATE users SET start_count = start_count + 1 WHERE user_id = ?',
+            (user_id,)
+        )
         await db.commit()

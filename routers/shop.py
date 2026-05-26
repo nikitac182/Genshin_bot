@@ -33,12 +33,11 @@ async def handle_cancel_payment(call: CallbackQuery, state: FSMContext):
     await state.clear()
     await buy_primogems(call)
 
-@router.callback_query(lambda c: c.data == 'admin_confirm_payment')
-async def handle_admin_confirm_payment(call: CallbackQuery, state: FSMContext):
-    await admin_confirm_payment(call, state)
-    await state.clear()
+@router.callback_query(lambda c: c.data.startswith('admin_confirm_'))
+async def handle_admin_confirm_payment(call: CallbackQuery):
+    await admin_confirm_payment(call)
 
-@router.callback_query(lambda c: c.data == 'admin_cancel_payment')
+@router.callback_query(lambda c: c.data.startswith('admin_cancel_'))
 async def handle_admin_cancel_payment(call: CallbackQuery, state: FSMContext):
     await state.clear()
     await buy_primogems(call)

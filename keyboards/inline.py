@@ -90,12 +90,24 @@ shop_menu_kb = InlineKeyboardMarkup(
     ]
 )
 
-payment_confirm_kb = InlineKeyboardMarkup(inline_keyboard=[
-    [
-        InlineKeyboardButton(text="✅ Я оплатил", callback_data="confirm_payment"),
-        InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_payment")
+def admin_confirm_kb(user_id: int, primogems: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="✅ Подтвердить", callback_data=f"admin_confirm_{user_id}_{primogems}"),
+                InlineKeyboardButton(text="❌ Отмена", callback_data=f"admin_cancel_{user_id}")
+            ]
+        ]
+    )
+
+payment_confirm_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="✅ Я оплатил", callback_data="confirm_payment"),
+            InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_payment")
+        ]
     ]
-])
+)
 
 banner_menu_kb = InlineKeyboardMarkup(
     inline_keyboard=[

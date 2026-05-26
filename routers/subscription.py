@@ -2,16 +2,18 @@ from aiogram import Router, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database import set_user_subscription, get_user_subscription
 from filters.ban_filter import IsNotBanned
+from config import CHANNEL_ID, CHANNEL_LINK
 
 router = Router()
 router.message.filter(IsNotBanned())
 router.callback_query.filter(IsNotBanned())
 
 
-# ID канала (можно взять из ссылки: https://t.me/username)
-CHANNEL_ID = "@sshkotik"
-CHANNEL_LINK = "https://t.me/sshkotik"
-
+main_menu_button = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")]
+    ]
+)
 
 @router.callback_query(lambda c: c.data == 'check_subscription')
 async def check_subscription(call: types.CallbackQuery):
@@ -28,15 +30,18 @@ async def check_subscription(call: types.CallbackQuery):
         await call.message.edit_text(
             "✅ **Подписка подтверждена!**\n\n"
             "Теперь вы будете получать **150 примогемов** в час вместо обычных 100.\n\n",
+            reply_markup=main_menu_button,
             parse_mode="Markdown"
         )
     else:
+        await set_user_subscription(user_id, False)
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="📢 Подписаться на канал", url=CHANNEL_LINK)],
             [InlineKeyboardButton(text="🔄 Проверить подписку", callback_data="check_subscription")],
             [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")]
         ])
-        await call.message.edit_text(
+        await call.message.delete()
+        await call.message.answer(
             "❌ **Вы не подписаны на канал!**\n\n"
             "Подпишитесь на наш канал, чтобы получать **150 примогемов** в час вместо 100.\n\n"
             "После подписки нажмите «Проверить подписку».",
@@ -49,8 +54,13 @@ async def check_subscription(call: types.CallbackQuery):
 @router.callback_query(lambda c: c.data == 'subscription_info')
 async def subscription_info(call: types.CallbackQuery):
     user_id = call.from_user.id
-    is_subscribed = await get_user_subscription(user_id)
-    
+    try:
+        member = await call.bot.get_chat_member(CHANNEL_ID, user_id)
+        is_subscribed = member.status in ['member', 'creator', 'administrator']
+    except:
+        is_subscribed = False
+    await set_user_subscription(user_id, is_subscribed)
+
     current_reward = 150 if is_subscribed else 100
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
