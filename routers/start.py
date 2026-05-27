@@ -30,6 +30,6 @@ async def start_command(message: types.Message, state: FSMContext):
         await db.commit()
     if first_start:
         await increment_start_count(message.from_user.id)
-        await message.answer(START_CAPTION, reply_markup=menu_kb, parse_mode="Markdown")
+        await message.answer(START_CAPTION, parse_mode="Markdown")
     else:
         await message.answer("🏠 **Главное меню**", reply_markup=menu_kb, parse_mode="Markdown")

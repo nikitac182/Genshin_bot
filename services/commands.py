@@ -60,7 +60,10 @@ async def admin_commands(message: types.Message):
                             else:
                                 status = "✅ активен"
                         else:
-                            status = "✅ активен"
+                            if used_count >= max_uses:
+                                status = "❌ кончился"
+                            else:
+                                status = "✅ активен"
                         
                         text += f"`{code}` | {reward}💎 | {used_count}/{max_uses} | {status}\n"
                     await message.answer(text, parse_mode="Markdown")

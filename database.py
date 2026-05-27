@@ -24,6 +24,19 @@ async def delete_user(user_id):
         await db.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
         await db.execute('DELETE FROM inventory WHERE user_id = ?', (user_id,))
         await db.execute('DELETE FROM wish_log WHERE user_id = ?', (user_id,))
+        async with db.execute('SELECT code, used_by FROM promocodes') as cursor:
+            promos = await cursor.fetchall()
+            for code, used_by in promos:
+                if used_by:
+                    used_list = used_by.split(',')
+                    if str(user_id) in used_list:
+                        used_list.remove(str(user_id))
+                        new_used_by = ','.join(used_list) if used_list else ''
+                        await db.execute(
+                            'UPDATE promocodes SET used_by = ? WHERE code = ?',
+                            (new_used_by, code)
+                        )
+        
         await db.commit()
 
 async def get_status(user_id):

@@ -158,7 +158,7 @@ class GachaRandomizer:
                     }
                 else:
                     return {
-                        "name": random.choice(self.standart_weapons_5star),
+                        "name": random.choice(self.standard_weapons_5star),
                         "type": "weapon",
                         "rarity": 5
                     }
