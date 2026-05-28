@@ -1,7 +1,7 @@
 from aiogram.types import CallbackQuery, Message
 from aiogram import F
 from aiogram.fsm.context import FSMContext
-from consts import BANNER_NAMES, CONTACT_ADMIN_MESSAGE, PROFILE_CAPTION
+from consts import BANNER_NAMES, PROFILE_CAPTION
 from keyboards.inline import *
 from database import *
 from services.paginator import get_wish_menu_kb, get_page, get_max_page
@@ -53,6 +53,8 @@ async def set_profile(call: CallbackQuery, user_in_profile_id=None):
     HARD_PITY_4 = 10
     until_5star = max(0, HARD_PITY_5 - pity_5)
     until_4star = max(0, HARD_PITY_4 - pity_4)
+    characters_count = len(characters)
+    weapons_count = len(weapons)
     caption = PROFILE_CAPTION.format(
         primogems=primogems,
         total_wishes=total_wishes,
@@ -60,10 +62,43 @@ async def set_profile(call: CallbackQuery, user_in_profile_id=None):
         pity_4=until_4star,
         stardust=stardust,
         starglitter=starglitter,
-        characters_list="\n-".join(f"{name} (C{level})" for name, level, _ in characters),
-        weapons_list="\n-".join(f"{name} (R{level})" for name, level, _ in weapons)
+        characters_list=characters_count,
+        weapons_list=weapons_count
     )
     await call.message.edit_text(caption, reply_markup=profile_kb if call.message.chat.type == "private" else profile_menu_kb(call.from_user.id))
+
+async def show_characters_list(call: CallbackQuery):
+    characters = await get_characters_with_constellation(call.from_user.id)
+    
+    if not characters:
+        await call.answer("У вас нет персонажей!", show_alert=True)
+        return
+    
+    text = "🎭 **Ваши персонажи:**\n\n"
+    for name, level, _ in characters:
+        text += f"-{name} (C{level})\n"
+    
+    await call.message.answer(text, parse_mode="Markdown", reply_markup=close_kb)
+    await call.answer()
+
+
+async def show_weapons_list(call: CallbackQuery):
+    weapons = await get_weapons_with_refinement(call.from_user.id)
+    
+    if not weapons:
+        await call.answer("У вас нет оружия 4★ или 5★!", show_alert=True)
+        return
+    
+    text = "⚔️ **Ваше оружие 4★|5★:**\n\n"
+    for name, level, _ in weapons:
+        text += f"-{name} (R{level})\n"
+    
+    await call.message.answer(text, parse_mode="Markdown", reply_markup=close_kb)
+    await call.answer()
+
+async def close_list(call: CallbackQuery):
+    await call.message.delete()
+    await call.answer()
 
 async def set_promo_code(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text(
@@ -80,7 +115,7 @@ async def process_promo_code(message: Message, state: FSMContext):
     if not promo_info:
         await message.answer(
             "❌ Неверный промокод. Пожалуйста, попробуйте снова или обратитесь к администратору.",
-            reply_markup=back_menu_kb
+            reply_markup=promo_kb
         )
         await state.clear()
         return
@@ -97,7 +132,7 @@ async def process_promo_code(message: Message, state: FSMContext):
         if datetime.now() > expires_date:
             await message.answer(
                 "❌ Срок действия промокода истёк!",
-                reply_markup=back_menu_kb,
+                reply_markup=promo_kb,
             )
             await state.clear()
             return
@@ -105,7 +140,7 @@ async def process_promo_code(message: Message, state: FSMContext):
     if used_count >= max_uses:
         await message.answer(
             f"❌ Лимит активация промокода",
-            reply_markup=back_menu_kb,
+            reply_markup=promo_kb,
         )
         await state.clear()
         return
@@ -114,7 +149,7 @@ async def process_promo_code(message: Message, state: FSMContext):
     if str(user_id) in used_list:
         await message.answer(
             "❌ Вы уже использовали этот промокод!",
-            reply_markup=back_menu_kb,
+            reply_markup=promo_kb,
         )
         await state.clear()
         return
@@ -122,16 +157,13 @@ async def process_promo_code(message: Message, state: FSMContext):
     success, msg, reward_amount = await use_promocode(code, user_id)
     if success:
         await add_primogems(user_id, reward_amount)
-        remaining = max_uses - (used_count + 1)
-
         await message.answer(
             f"✅ Промокод успешно активирован! Вы получили награду в размере {reward_amount} примогемов!",
-            reply_markup=back_menu_kb
+            reply_markup=promo_kb
         )
     else:
         await message.answer(
             f"{msg}",
-            reply_markup=back_menu_kb,
+            reply_markup=promo_kb,
         )
-
     await state.clear()

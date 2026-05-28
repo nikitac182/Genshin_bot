@@ -9,11 +9,6 @@ async def add_user(user_id, username, name):
         await db.execute('INSERT OR IGNORE INTO users (user_id, username, name, start_count) VALUES (?, ?, ?, 0)', (user_id, username, name))
         await db.commit()
 
-async def add_item(user_id, item_name, item_type, rarity):
-    async with aiosqlite.connect('sqlite.db') as db:
-        await db.execute('INSERT INTO inventory (user_id, item_name, item_type, rarity) VALUES (?, ?, ?, ?)', (user_id, item_name, item_type, rarity))
-        await db.commit()
-
 async def add_primogems(user_id, amount):
     async with aiosqlite.connect('sqlite.db') as db:
         await db.execute('UPDATE users SET primogems = primogems + ? WHERE user_id = ?', (amount, user_id))
@@ -36,7 +31,6 @@ async def delete_user(user_id):
                             'UPDATE promocodes SET used_by = ? WHERE code = ?',
                             (new_used_by, code)
                         )
-        
         await db.commit()
 
 async def get_status(user_id):
@@ -89,12 +83,6 @@ async def get_starglitter(user_id):
         async with db.execute('SELECT starglitter FROM users WHERE user_id = ?', (user_id,)) as cursor:
             result = await cursor.fetchone()
             return result[0] if result else 0
-        
-async def get_rarity(user_id):
-    async with aiosqlite.connect('sqlite.db') as db:
-        async with db.execute('SELECT rarity FROM users WHERE user_id = ?', (user_id,)) as cursor:
-            result = await cursor.fetchone()
-            return result[0] if result else None
 
 async def get_pity(user_id):
     async with aiosqlite.connect('sqlite.db') as db:
@@ -135,25 +123,11 @@ async def pull_pity(user_id, new_pity_4, new_pity_5):
         await db.execute('UPDATE users SET pity_4 = ?, pity_5 = ? WHERE user_id = ?', (new_pity_4, new_pity_5, user_id))
         await db.commit()
 
-async def pull_rarity(user_id, rarity):
-    async with aiosqlite.connect('sqlite.db') as db:
-        await db.execute('UPDATE inventory SET rarity = rarity - ? WHERE user_id = ?', (rarity, user_id))
-        await db.commit()
-
 async def pull_total_wishes(user_id, amount):
     '''Увеличивает общее количество круток пользователя на указанную сумму.'''
     async with aiosqlite.connect('sqlite.db') as db:
         await db.execute('UPDATE users SET total_wishes = total_wishes + ? WHERE user_id = ?', (amount, user_id))
         await db.commit()
-
-async def get_character_constellation(user_id: int, character_name: str) -> int:
-    async with aiosqlite.connect('sqlite.db') as db:
-        async with db.execute(
-            'SELECT constellation_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "character"',
-            (user_id, character_name)
-        ) as cursor:
-            result = await cursor.fetchone()
-            return result[0] if result else 0
 
 async def get_wish_result_data(user_id: int) -> dict:
     async with aiosqlite.connect('sqlite.db') as db:
@@ -174,14 +148,6 @@ async def get_characters_with_constellation(user_id: int) -> list:
         ) as cursor:
             result = await cursor.fetchall()
             return [(row[0], row[1], row[2]) for row in result] if result else []
-
-async def update_character_constellation(user_id: int, character_name: str, new_level: int):
-    async with aiosqlite.connect('sqlite.db') as db:
-        await db.execute(
-            'UPDATE inventory SET constellation_level = ? WHERE user_id = ? AND item_name = ? AND item_type = "character"',
-            (new_level, user_id, character_name)
-        )
-        await db.commit()
 
 async def add_character_with_constellation(user_id: int, character_name: str, rarity: int):
     async with aiosqlite.connect('sqlite.db') as db:
@@ -375,15 +341,6 @@ async def use_promocode(code: str, user_id: int) -> tuple:
         await db.commit()
         
         return True, f"✅ Промокод активирован! Вы получили {reward} гемов.", reward
-
-async def get_user_promocode_history(user_id: int) -> list:
-    async with aiosqlite.connect('sqlite.db') as db:
-        async with db.execute(
-            'SELECT code, reward, created_at FROM promocodes WHERE used_by = ?',
-            (str(user_id),)
-        ) as cursor:
-            result = await cursor.fetchall()
-            return result if result else []
 
 async def get_all_promocodes() -> list:
     async with aiosqlite.connect('sqlite.db') as db:

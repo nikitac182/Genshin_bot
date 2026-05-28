@@ -2,7 +2,8 @@ from aiogram import Router, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database import set_user_subscription, get_user_subscription
 from filters.ban_filter import IsNotBanned
-from config import CHANNEL_ID, CHANNEL_LINK
+from config import CHANNEL_ID
+from keyboards.inline import subscription_kb
 
 router = Router()
 router.message.filter(IsNotBanned())
@@ -35,17 +36,12 @@ async def check_subscription(call: types.CallbackQuery):
         )
     else:
         await set_user_subscription(user_id, False)
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📢 Подписаться на канал", url=CHANNEL_LINK)],
-            [InlineKeyboardButton(text="🔄 Проверить подписку", callback_data="check_subscription")],
-            [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")]
-        ])
         await call.message.delete()
         await call.message.answer(
             "❌ **Вы не подписаны на канал!**\n\n"
             "Подпишитесь на наш канал, чтобы получать **150 примогемов** в час вместо 100.\n\n"
             "После подписки нажмите «Проверить подписку».",
-            reply_markup=keyboard,
+            reply_markup=subscription_kb,
             parse_mode="Markdown"
         )
     await call.answer()
@@ -63,11 +59,6 @@ async def subscription_info(call: types.CallbackQuery):
 
     current_reward = 150 if is_subscribed else 100
     
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🔗 Проверить подписку", callback_data="check_subscription")],
-        [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")]
-    ])
-    
     status_text = "✅ **Подписка активна!**" if is_subscribed else "❌ **Подписка не активна**"
     
     await call.message.edit_text(
@@ -76,7 +67,7 @@ async def subscription_info(call: types.CallbackQuery):
         f"💰 Текущая награда: **{current_reward} примогемов** в час\n"
         f"⭐ Максимальная награда: **150 примогемов** в час\n\n"
         f"Подпишитесь на канал, чтобы увеличить награду!",
-        reply_markup=keyboard,
+        reply_markup=subscription_kb,
         parse_mode="Markdown"
     )
     await call.answer()

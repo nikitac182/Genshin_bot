@@ -44,7 +44,7 @@ HELP_TEXT = """
     /unban <user_id> - Разбанить пользователя
     /delete_user <user_id> - Удалить пользователя
     /get_user <user_id> - Информация о пользователе
-    /set_promo <code> <reward> - Создать промокод
+    /set_promo <code> <reward> <uses> <hours> - Создать промокод
     /del_promo <code> - Удалить промокод
     /list_promo - Список всех промокодов
     /help - Показать это сообщение
@@ -61,11 +61,8 @@ PROFILE_CAPTION = '''
 🎯 Молитв до 5★ гаранта: {pity_5}
 🎯 Молитв до 4★ гаранта: {pity_4}
 
-💫 Список персонажей (с созвездиями):
--{characters_list}
-
-🗡 Выбито оружий 4★|5★:
--{weapons_list}
+💫 Выбито персонажей: {characters_list}
+🗡 Выбито оружий: {weapons_list}
 '''
 
 START_CAPTION = '''

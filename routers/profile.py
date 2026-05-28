@@ -5,7 +5,7 @@ from config import COUNT_WISHES_PER_PAGE
 from consts import LAST
 from filters.ban_filter import IsNotBanned
 from keyboards.inline import menu_kb, group_menu_kb
-from services.user_profile import process_promo_code, set_promo_code, set_story_wishes, set_profile
+from services.user_profile import process_promo_code, set_promo_code, set_story_wishes, set_profile, show_characters_list, show_weapons_list, close_list
 from state.promocode_state import PromoState
 
 router = Router()
@@ -28,8 +28,8 @@ async def handler_set_profile(call: CallbackQuery):
 async def handler_set_story_wishes(call: CallbackQuery):
     await set_story_wishes(call)
 
-@router.callback_query(lambda c: c.data == 'back_to_menu_from_profile')
-async def back_to_menu_from_profile(call: CallbackQuery, state: FSMContext):
+@router.callback_query(lambda c: c.data == 'back_to_menu')
+async def back_to_menu(call: CallbackQuery, state: FSMContext):
     await state.clear()
     await call.message.edit_text('Главное меню', reply_markup=menu_kb if call.message.chat.type == "private" else group_menu_kb(call.from_user.id))
 
@@ -59,3 +59,15 @@ async def handle_promo_code(call: CallbackQuery, state: FSMContext):
 async def handle_process_promo_code(message: Message, state: FSMContext):
     await process_promo_code(message, state)
     await state.clear()
+
+@router.callback_query(lambda c: c.data == 'show_characters')
+async def handle_show_characters(call: CallbackQuery):
+    await show_characters_list(call)
+
+@router.callback_query(lambda c: c.data == 'show_weapons')
+async def handle_show_weapons(call: CallbackQuery):
+    await show_weapons_list(call)
+
+@router.callback_query(lambda c: c.data == 'close_list')
+async def handle_close_list(call: CallbackQuery):
+    await close_list(call)

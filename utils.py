@@ -54,7 +54,7 @@ def roll_rarity(pity_4, pity_5, banner_type: str = "characters"):
 
     return 3
 
-async def update_pity(rarity, user_id, pity_4, pity_5):
+async def update_pity(rarity, pity_4, pity_5):
 
     if rarity == 5:
         return 0, 0

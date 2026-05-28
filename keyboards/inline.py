@@ -1,4 +1,5 @@
 from aiogram.types import *
+from config import CHANNEL_LINK
 
 
 menu_kb = InlineKeyboardMarkup(
@@ -38,7 +39,7 @@ def group_menu_kb(user_id: int):
 back_menu_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu_from_profile"),
+            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu"),
         ],
     ]
 )
@@ -54,9 +55,13 @@ confirm_payment_kb = InlineKeyboardMarkup(
 
 profile_kb = InlineKeyboardMarkup(
     inline_keyboard=[
+        [
+            InlineKeyboardButton(text="💫 Персонажи", callback_data="show_characters"),
+            InlineKeyboardButton(text="🗡 Оружие", callback_data="show_weapons")
+        ],
         [InlineKeyboardButton(text="🎫 Ввести промокод", callback_data="promo_code")],
         [InlineKeyboardButton(text="🕒 История круток", callback_data="story_wishes")],
-        [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu_from_profile")],
+        [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")],
     ]
 )
 
@@ -100,12 +105,14 @@ def admin_confirm_kb(user_id: int, primogems: int) -> InlineKeyboardMarkup:
         ]
     )
 
-payment_confirm_kb = InlineKeyboardMarkup(inline_keyboard=[
-    [
-        InlineKeyboardButton(text="✅ Я оплатил", callback_data="confirm_payment"),
-        InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_payment")
+payment_confirm_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="✅ Я оплатил", callback_data="confirm_payment"),
+            InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_payment")
+        ]
     ]
-])
+)
 
 banner_menu_kb = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -135,3 +142,24 @@ back_from_gacha_kb = InlineKeyboardMarkup(
     ]
 )
 
+subscription_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [InlineKeyboardButton(text="📢 Подписаться на канал", url=CHANNEL_LINK)],
+        [InlineKeyboardButton(text="🔗 Проверить подписку", callback_data="check_subscription")],
+        [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")],
+    ]
+)
+
+promo_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [InlineKeyboardButton(text="🎫 Ввести промокод", callback_data="promo_code")],
+        [InlineKeyboardButton(text="🔙 Назад в профиль", callback_data="profile")],
+        [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")]
+    ]
+)
+
+close_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [InlineKeyboardButton(text="❌ Закрыть", callback_data="close_list")]
+    ]
+)
