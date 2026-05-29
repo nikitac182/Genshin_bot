@@ -68,7 +68,7 @@ profile_kb = InlineKeyboardMarkup(
 def profile_menu_kb(user_id: int):
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu_from_profile")],
+            [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")],
         ]
 
     )
@@ -90,7 +90,7 @@ shop_menu_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(text="📞 Связаться с админом для начисления", callback_data="contact_admin"), 
         ],
         [
-            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu_from_profile"),
+            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu"),
         ],
     ]
 )
