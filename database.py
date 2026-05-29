@@ -1,7 +1,6 @@
 #database.py
 import aiosqlite
 from datetime import datetime, timedelta
-
 from config import COUNT_WISHES_PER_PAGE
 
 async def add_user(user_id, username, name):

@@ -21,7 +21,6 @@ async def admin_commands(message: types.Message):
                 await message.answer(f"Уменьшено {amount} примогемов у пользователя {user_id}")
             elif command == '/ban':
                 await ban_user(message, int(user_id), int(amount))
-                await message.answer(f"Пользователь {user_id} заблокирован")
             elif command == '/set_promo':
                 code = user_id
                 reward = amount
