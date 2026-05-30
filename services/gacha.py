@@ -226,9 +226,7 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
             starglitter_gained = 10
 
     await add_stardust_starglitter(user_id, stardust=stardust_gained, starglitter=starglitter_gained)
-    await add_to_wish_log(user_id, item["name"], item["rarity"], pity_count)
-    item_id = await get_id_by_wish_log_entry(user_id, item["name"], item["rarity"])
-    await set_current_banner(item_id, banner_type)
+    await add_to_wish_log(user_id, item["name"], item["rarity"], pity_count, banner_type)
     new_pity_4, new_pity_5 = await update_pity(rarity, pity_4, pity_5)
     
     return item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, constellation_info

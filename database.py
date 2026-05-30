@@ -242,12 +242,12 @@ async def add_stardust_starglitter(user_id: int, stardust: int = 0, starglitter:
             await db.execute('UPDATE users SET starglitter = starglitter + ? WHERE user_id = ?', (starglitter, user_id))
         await db.commit()
 
-async def add_to_wish_log(user_id: int, item_name: str, rarity: int, pity_count: int = 0):
+async def add_to_wish_log(user_id: int, item_name: str, rarity: int, pity_count: int = 0, banner_type: str = None):
     """Добавляет запись в лог круток"""
     async with aiosqlite.connect('sqlite.db') as db:
         await db.execute(
-            'INSERT INTO wish_log (user_id, item_name, rarity, pity_count) VALUES (?, ?, ?, ?)',
-            (user_id, item_name, rarity, pity_count)
+            'INSERT INTO wish_log (user_id, item_name, rarity, pity_count, current_banner) VALUES (?, ?, ?, ?, ?)',
+            (user_id, item_name, rarity, pity_count, banner_type)
         )
         await db.commit()
 
@@ -371,3 +371,22 @@ async def increment_start_count(user_id: int):
             (user_id,)
         )
         await db.commit()
+
+async def get_banner_wishes_from_log(user_id: int) -> dict:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT current_banner, COUNT(*) FROM wish_log WHERE user_id = ? GROUP BY current_banner',
+            (user_id,)
+        ) as cursor:
+            rows = await cursor.fetchall() 
+        stats = {
+            'characters': 0,
+            'weapons': 0,
+            'standard': 0,
+            'total': 0
+        }
+        for banner, count in rows:
+            if banner in stats:
+                stats[banner] = count
+            stats['total'] += count
+        return stats

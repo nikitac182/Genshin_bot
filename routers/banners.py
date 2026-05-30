@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery
 from consts import BANNER_NAMES
 from filters.ban_filter import IsNotBanned
 from keyboards.inline import banner_menu_kb, menu_kb
-from database import set_user_banner, get_user_banner
+from database import set_user_banner, get_user_banner, get_banner_wishes_from_log
 from utils1.randomizer import GachaRandomizer
 
 router = Router()
@@ -15,12 +15,13 @@ router.callback_query.filter(IsNotBanned())
 async def change_banner_menu(call: CallbackQuery):
     
     current_banner = await get_user_banner(call.from_user.id)
-    
     banner_name = BANNER_NAMES.get(current_banner, "Неизвестно")
+    banner_stats = await get_banner_wishes_from_log(call.from_user.id)
 
     await call.message.edit_text(
         f"🔄 **Смена баннера**\n\n"
-        f"Текущий баннер: **{banner_name}**\n\n"
+        f"Текущий баннер: **{banner_name}**\n"
+        f"Количество круток на этом баннере: {banner_stats[current_banner]}\n\n"
         f"Выберите тип баннера для круток:",
         reply_markup=banner_menu_kb,
         parse_mode="Markdown"
@@ -32,7 +33,8 @@ async def set_banner(call: CallbackQuery):
     banner_type = call.data.split('_')[1]
     
     await set_user_banner(call.from_user.id, banner_type)
-    
+    banner_stats = await get_banner_wishes_from_log(call.from_user.id)
+    selected_stats = banner_stats.get(banner_type, 0)
 
     randomizer = GachaRandomizer(banner_type)
     info = randomizer.get_banner_info()
@@ -40,7 +42,8 @@ async def set_banner(call: CallbackQuery):
     
     await call.message.edit_text(
         f"✅ Баннер сменён на **{banner_name}**!\n"
-        f"📊 {info}",
+        f"📊 {info}\n\n"
+        f"📈 Количество круток на этом баннере: {selected_stats}",
         reply_markup=menu_kb,
         parse_mode="Markdown"
     )
