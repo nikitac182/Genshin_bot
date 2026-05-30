@@ -73,18 +73,9 @@ async def admin_commands(message: types.Message):
                 await delete_user(int(user_id))
                 await message.answer(f"Пользователь {user_id} удален")
             
-            elif command == '/get_user':
-                player = await get_player(int(user_id))
-                if player:
-                    await message.answer(f"Пользователь {user_id} найден: @{player}")
-                else:
-                    await message.answer(f"Пользователь {user_id} не найден")
-            
             elif command == '/del_promo':
                 await del_promo(user_id)
                 await message.answer(f"✅ Промокод `{user_id}` удалён!")
-
-            
 
             elif command == '/unban':
                 await unban_user(message, int(user_id))
