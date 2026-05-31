@@ -54,15 +54,9 @@ async def admin_commands(message: types.Message):
                         
                         if expires_at:
                             expires_date = datetime.fromisoformat(expires_at)
-                            if datetime.now() > expires_date:
-                                status = "❌ истёк"
-                            else:
-                                status = "✅ активен"
+                            status = "❌ истёк" if datetime.now() > expires_date else "✅ активен"
                         else:
-                            if used_count >= max_uses:
-                                status = "❌ кончился"
-                            else:
-                                status = "✅ активен"
+                            status = "❌ кончился" if used_count >= max_uses else "✅ активен"
                         
                         text += f"`{code}` | {reward}💎 | {used_count}/{max_uses} | {status}\n"
                     await message.answer(text, parse_mode="Markdown")

@@ -1,236 +1,326 @@
+import aiosqlite
 from aiogram.types import CallbackQuery, Message
 from consts import BANNER_NAMES
 from database import (
-    get_id_by_wish_log_entry,
     get_pity,
     get_primogems,
-    pull_pity,
-    pull_total_wishes,
-    reduce_primogems,
-    add_to_wish_log,
-    add_stardust_starglitter,
     get_user_banner,
-    add_character_with_constellation,
-    add_weapon,
-    set_current_banner,
     get_guarantee_5star,
-    set_guarantee_5star,
     get_guarantee_4star,
-    set_guarantee_4star,
+    safe_wish,
+    safe_wish_ten,
 )
+from asyncio import Lock
 from filters.ban_filter import check_user_not_banned
-from utils import roll_rarity, update_pity
+from utils import roll_rarity
 from utils1.randomizer import GachaRandomizer
 from keyboards.inline import back_from_gacha_kb, group_menu_kb
-from database import add_weapon_with_refinement
+from datetime import datetime
+from collections import defaultdict
+
+user_locks = defaultdict(Lock)
+user_lock_last_used = {}
+def get_user_lock(user_id: int) -> Lock:
+    user_lock_last_used[user_id] = datetime.now()
+    lock = user_locks[user_id]
+    if len(user_locks) > 100:
+        cleanup_old_locks()
+    return lock
+
+def cleanup_old_locks():
+    if len(user_locks) <= 100:
+        return
+    sorted_users = sorted(
+        user_lock_last_used.items(), 
+        key=lambda x: x[1], 
+        reverse=True
+    )[:100]
+    keep_users = {user_id for user_id, _ in sorted_users}
+    for uid in list(user_locks.keys()):
+        if uid not in keep_users:
+            del user_locks[uid]
+            if uid in user_lock_last_used:
+                del user_lock_last_used[uid]
 
 async def wish_one_time(user_id: int, target: CallbackQuery | Message):
+    lock = get_user_lock(user_id)
+    try:
+        async with lock:
+            if not await check_user_not_banned(user_id):
+                if isinstance(target, CallbackQuery):
+                    await target.answer("Вы заблокированы.", show_alert=True)
+                return
+            
+            user_banner = await get_user_banner(user_id)
+            pity_4, pity_5 = await get_pity(user_id)
+            rarity = roll_rarity(pity_4, pity_5, user_banner)
+            
+            (item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, 
+            _, new_constellation_level, new_guarantee_4star, new_guarantee_5star, pity_count) = await get_reward(
+                user_id, rarity, pity_4, pity_5, user_banner
+            )
+            
+            const_line = ""
+            if new_constellation_level is not None:
+                const_line = f"(C{new_constellation_level})"
 
-    if not await check_user_not_banned(user_id):
-        if isinstance(target, CallbackQuery):
-            await target.answer("Вы заблокированы.", show_alert=True)
-        return
-    
-    primogems = await get_primogems(user_id)
-    
-    if primogems < 160:
-        msg = "❌ Недостаточно примогемов!"
+            success = await safe_wish(
+                user_id=user_id,
+                item_name=item["name"],
+                item_type=item["type"],
+                item_rarity=item["rarity"],
+                new_pity_4=new_pity_4,
+                new_pity_5=new_pity_5,
+                stardust_gained=stardust_gained,
+                starglitter_gained=starglitter_gained,
+                banner_type=user_banner,
+                pity_count=pity_count,
+                new_constellation_level=new_constellation_level,
+                new_guarantee_4star=new_guarantee_4star,
+                new_guarantee_5star=new_guarantee_5star
+            )
+            if not success:
+                msg = "❌ Ошибка при выполнении крутки. Попробуйте позже."
+                if isinstance(target, CallbackQuery):
+                    await target.answer(msg, show_alert=True)
+                else:
+                    await target.answer(msg)
+                return
+
+            stars = "⭐" * item["rarity"]
+            
+            star_text = []
+            if stardust_gained > 0:
+                star_text.append(f"✨ +{stardust_gained} звёздной пыли")
+            if starglitter_gained > 0:
+                star_text.append(f"⭐ +{starglitter_gained} звёздного блеска")
+            star_line = "\n".join(star_text) if star_text else "Ничего дополнительного"
+            
+            msg = (
+                f"Вы получили:\n"
+                f"{stars} **{item['name']}**{const_line}\n\n"
+                f"💎 Осталось примогемов: {await get_primogems(user_id)}\n"
+                f"**Баннер:** {BANNER_NAMES.get(user_banner, 'Неизвестно')}\n"
+                f"✨ **Получено:**\n{star_line}"
+            )
+            
+            if isinstance(target, CallbackQuery):
+                await target.message.edit_text(
+                    msg,
+                    parse_mode="Markdown",
+                    reply_markup=back_from_gacha_kb if target.message.chat.type == 'private' else group_menu_kb(target.from_user.id))
+                await target.answer()
+            else:
+                await target.answer(msg)
+    except TimeoutError:
+        msg = "⚠️ Слишком много запросов! Подождите немного."
         if isinstance(target, CallbackQuery):
             await target.answer(msg, show_alert=True)
         else:
             await target.answer(msg)
-        return
-    
-    user_banner = await get_user_banner(user_id)
-    await reduce_primogems(user_id, 160)
-    await pull_total_wishes(user_id, 1)
-    
-    pity_4, pity_5 = await get_pity(user_id)
-    
-    rarity = roll_rarity(pity_4, pity_5, user_banner)
-    
-    item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, constellation_info = await get_reward(
-        user_id, rarity, pity_4, pity_5, user_banner
-    )
-    
-    await pull_pity(user_id, new_pity_4, new_pity_5)
-
-    stars = "⭐" * item["rarity"]
-    
-    star_text = []
-    if stardust_gained > 0:
-        star_text.append(f"✨ +{stardust_gained} звёздной пыли")
-    if starglitter_gained > 0:
-        star_text.append(f"⭐ +{starglitter_gained} звёздного блеска")
-    star_line = "\n".join(star_text) if star_text else "Ничего дополнительного"
-
-    const_line = f"{constellation_info}" if constellation_info else ""
-    
-    msg = (
-        f"Вы получили:\n"
-        f"{stars} **{item['name']}**{const_line}\n\n"
-        f"💎 Осталось примогемов: {await get_primogems(user_id)}\n"
-        f"**Баннер:** {BANNER_NAMES.get(user_banner, 'Неизвестно')}\n"
-        f"✨ **Получено:**\n{star_line}"
-    )
-    
-    if isinstance(target, CallbackQuery):
-        await target.message.edit_text(
-            msg,
-            parse_mode="Markdown",
-            reply_markup=back_from_gacha_kb if target.message.chat.type == 'private' else group_menu_kb(target.from_user.id))
-        await target.answer()
-    else:
-        await target.answer(msg)
 
 async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
+    lock = get_user_lock(user_id)
+    
+    try:
+        async with lock:
+            if not await check_user_not_banned(user_id):
+                if isinstance(target, CallbackQuery):
+                    await target.answer("Вы заблокированы.", show_alert=True)
+                return
+            
+            user_banner = await get_user_banner(user_id)
+            pity_4, pity_5 = await get_pity(user_id)
+            guarantee_5star = await get_guarantee_5star(user_id)
+            guarantee_4star = await get_guarantee_4star(user_id)
+            results = []
+            total_stardust = 0
+            total_starglitter = 0
+            wish_data = []
+            current_pity_4, current_pity_5 = pity_4, pity_5
+            current_guarantee_5star = guarantee_5star
+            current_guarantee_4star = guarantee_4star
 
-    if not await check_user_not_banned(user_id):
-        if isinstance(target, CallbackQuery):
-            await target.answer("Вы заблокированы.", show_alert=True)
-        return
-    
-    primogems = await get_primogems(user_id)
-    
-    if primogems < 1600:
-        msg = "❌ Недостаточно примогемов!"
+            for i in range(10):
+                rarity = roll_rarity(current_pity_4, current_pity_5, user_banner)
+                
+                (item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, 
+                 constellation_info, new_constellation_level, new_guarantee_4star, new_guarantee_5star, pity_count) = await get_reward(
+                    user_id, rarity, current_pity_4, current_pity_5, user_banner, current_guarantee_4star, current_guarantee_5star
+                )
+
+                total_stardust += stardust_gained
+                total_starglitter += starglitter_gained
+                
+                stars = "⭐" * item["rarity"]
+                const_line = f"{constellation_info}" if constellation_info else ""
+                
+                if item["rarity"] == 5 or item["rarity"] == 4:
+                    results.append(f"{stars} **{item['name']}**{const_line}")
+                else:
+                    results.append(f"{stars} {item['name']}")
+            
+                wish_data.append({
+                        "item_name": item["name"],
+                        "item_type": item["type"],
+                        "item_rarity": item["rarity"],
+                        "stardust": stardust_gained,
+                        "starglitter": starglitter_gained,
+                        "pity_count": pity_count,
+                        "constellation_level": new_constellation_level,
+                        "new_guarantee_4star": new_guarantee_4star,
+                        "new_guarantee_5star": new_guarantee_5star
+                    })
+                current_pity_4, current_pity_5 = new_pity_4, new_pity_5
+                if new_guarantee_4star is not None:
+                    current_guarantee_4star = new_guarantee_4star
+                if new_guarantee_5star is not None:
+                    current_guarantee_5star = new_guarantee_5star
+
+            success = await safe_wish_ten(
+                user_id=user_id,
+                wish_data=wish_data,
+                final_pity_4=current_pity_4,
+                final_pity_5=current_pity_5,
+                total_stardust=total_stardust,
+                total_starglitter=total_starglitter,
+                banner_type=user_banner
+            )
+            if not success:
+                msg = "❌ Ошибка при выполнении круток. Попробуйте позже."
+                if isinstance(target, CallbackQuery):
+                    await target.answer(msg, show_alert=True)
+                else:
+                    await target.answer(msg)
+                return
+            
+            star_text = []
+            if total_stardust > 0:
+                star_text.append(f"✨ +{total_stardust} звёздной пыли")
+            if total_starglitter > 0:
+                star_text.append(f"⭐ +{total_starglitter} звёздного блеска")
+            star_line = "\n".join(star_text) if star_text else "Ничего дополнительного"
+
+            results_text = "\n".join(results)
+            msg = (
+                f"Вы получили:\n"
+                f"{results_text}\n\n"
+                f"💎 Осталось примогемов: {await get_primogems(user_id)}\n"
+                f"**Баннер:** {BANNER_NAMES.get(user_banner, 'Неизвестно')}\n"
+                f"✨ **Получено:**\n{star_line}"
+            )
+            
+            if isinstance(target, CallbackQuery):
+                await target.message.edit_text(msg, parse_mode="Markdown", reply_markup=back_from_gacha_kb if target.message.chat.type == 'private' else group_menu_kb(target.from_user.id))
+                await target.answer()
+            else:
+                await target.answer(msg)
+    except TimeoutError:
+        msg = "⚠️ Слишком много запросов! Подождите немного."
         if isinstance(target, CallbackQuery):
             await target.answer(msg, show_alert=True)
         else:
             await target.answer(msg)
-        return
-    
-    user_banner = await get_user_banner(user_id)
-    await reduce_primogems(user_id, 1600)
-    await pull_total_wishes(user_id, 10)
-    
-    pity_4, pity_5 = await get_pity(user_id)
-    
-    results = []
-    total_stardust = 0
-    total_starglitter = 0
 
-    for i in range(10):
-        rarity = roll_rarity(pity_4, pity_5, user_banner)
-        
-        item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, constellation_info = await get_reward(
-            user_id, rarity, pity_4, pity_5, user_banner
-        )
-
-        total_stardust += stardust_gained
-        total_starglitter += starglitter_gained
-        
-        pity_4, pity_5 = new_pity_4, new_pity_5
-        
-        stars = "⭐" * item["rarity"]
-
-        const_line = f"{constellation_info}" if constellation_info else ""
-        
-        if item["rarity"] == 5 or item["rarity"] == 4:
-            results.append(f"{stars} **{item['name']}**{const_line}")
-        else:
-            results.append(f"{stars} {item['name']}")
-    
-    await pull_pity(user_id, pity_4, pity_5)
-    
-    star_text = []
-    if total_stardust > 0:
-        star_text.append(f"✨ +{total_stardust} звёздной пыли")
-    if total_starglitter > 0:
-        star_text.append(f"⭐ +{total_starglitter} звёздного блеска")
-    star_line = "\n".join(star_text) if star_text else "Ничего дополнительного"
-
-    results_text = "\n".join(results)
-    msg = (
-        f"Вы получили:\n"
-        f"{results_text}\n\n"
-        f"💎 Осталось примогемов: {await get_primogems(user_id)}\n"
-        f"**Баннер:** {BANNER_NAMES.get(user_banner, 'Неизвестно')}\n"
-        f"✨ **Получено:**\n{star_line}"
-    )
-    
-    if isinstance(target, CallbackQuery):
-        await target.message.edit_text(msg, parse_mode="Markdown", reply_markup=back_from_gacha_kb if target.message.chat.type == 'private' else group_menu_kb(target.from_user.id))
-        await target.answer()
-    else:
-        await target.answer(msg)
-
-async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner_type: str) -> tuple:
-    """Возвращает предмет, обновлённый pity и информацию о наградах"""
+async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner_type: str, guarantee_4star: bool = None, guarantee_5star: bool = None) -> tuple:
     randomizer = GachaRandomizer(banner_type)
     
     stardust_gained = 0
     starglitter_gained = 0
     constellation_info = None
-
+    new_constellation_level = None
     pity_count = pity_5 + 1
+    new_guarantee_4star = None
+    new_guarantee_5star = None
     
     if rarity == 3:
         item = randomizer.get_3star()
         stardust_gained = 15
-        await add_weapon(user_id, item["name"], item["rarity"])
         
     elif rarity == 4:
-        guarantee_4star = await get_guarantee_4star(user_id)
+        if guarantee_4star is None:
+            guarantee_4star = await get_guarantee_4star(user_id)
         item = randomizer.get_4star(guarantee_4star)
         if item["type"] == "character":
-            old_level, new_level = await add_character_with_constellation(user_id, item["name"], item["rarity"])
-            if banner_type != "weapons":
-                await set_guarantee_4star(user_id, False)
+            async with aiosqlite.connect('sqlite.db') as db:
+                async with db.execute(
+                    'SELECT constellation_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "character"',
+                    (user_id, item["name"])
+                ) as cursor:
+                    result = await cursor.fetchone()
+                    old_level = result[0] if result else -1
+            if old_level == -1:
+                new_constellation_level = 0
+                starglitter_gained = 0
+                constellation_info = "(C0)"
             else:
-                await set_guarantee_4star(user_id, True)
-            
-            if old_level is not None:
-                constellation_info = f"(C{new_level})"
+                new_constellation_level = old_level + 1
                 starglitter_gained = 2
+                constellation_info = f"(C{new_constellation_level})"
                 if old_level >= 6:
                     starglitter_gained += 3
+            if banner_type != "weapons":
+                new_guarantee_4star = False
             else:
+                new_guarantee_4star = True 
+        else:
+            starglitter_gained = 2
+            new_constellation_level = None
+            constellation_info = ""
+            if banner_type != "weapons":
+                new_guarantee_4star = True
+            else:
+                new_guarantee_4star = False
+    else:
+        if guarantee_5star is None:
+            guarantee_5star = await get_guarantee_5star(user_id)
+        item = randomizer.get_5star(guarantee_5star)
+        
+        if item["type"] == "character":
+            async with aiosqlite.connect('sqlite.db') as db:
+                async with db.execute(
+                    'SELECT constellation_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "character"',
+                    (user_id, item["name"])
+                ) as cursor:
+                    result = await cursor.fetchone()
+                    old_level = result[0] if result else -1
+            if old_level == -1:
+                new_constellation_level = 0
                 starglitter_gained = 0
                 constellation_info = "(C0)"
-        else: 
-            if banner_type != "weapons":
-                await set_guarantee_4star(user_id, True)
             else:
-                await set_guarantee_4star(user_id, False)
-            old_level, new_level = await add_weapon_with_refinement(user_id, item["name"], item["rarity"])
-            starglitter_gained = 2
-                
-            
-    else:
-        guarantee_5star = await get_guarantee_5star(user_id)
-        item = randomizer.get_5star(guarantee_5star)
-        if item["type"] == "character":
-            old_level, new_level = await add_character_with_constellation(user_id, item["name"], item["rarity"])
-            if banner_type == "characters":
-                if item["name"] in randomizer.standard_5star_characters:
-                    await set_guarantee_5star(user_id, True)
-                else:
-                    await set_guarantee_5star(user_id, False)
-                
-            if old_level is not None:
-                constellation_info = f"(C{new_level})"
+                new_constellation_level = old_level + 1
                 starglitter_gained = 10
+                constellation_info = f"(C{new_constellation_level})"
                 if old_level >= 6:
                     starglitter_gained += 15
-            else:
-                starglitter_gained = 0
-                constellation_info = "(C0)"
+            if banner_type == "characters":
+                if item["name"] in randomizer.standard_5star_characters:
+                    new_guarantee_5star = True
+                else:
+                    new_guarantee_5star = False
         else:
+            starglitter_gained = 10
+            new_constellation_level = None
+            constellation_info = ""
             if banner_type == "weapons":
                 if item["name"] in randomizer.standard_weapons_5star:
-                    await set_guarantee_5star(user_id, True)
+                    new_guarantee_5star = True
                 else:
-                    await set_guarantee_5star(user_id, False)
-            old_level, new_level = await add_weapon_with_refinement(user_id, item["name"], item["rarity"])
-            starglitter_gained = 10
-
-    await add_stardust_starglitter(user_id, stardust=stardust_gained, starglitter=starglitter_gained)
-    await add_to_wish_log(user_id, item["name"], item["rarity"], pity_count, banner_type)
-    new_pity_4, new_pity_5 = await update_pity(rarity, pity_4, pity_5)
+                    new_guarantee_5star = False
+        new_guarantee_4star = None
+    if rarity == 5:
+        new_pity_4 = 0
+        new_pity_5 = 0
+    elif rarity == 4:
+        new_pity_4 = 0
+        new_pity_5 = pity_5 + 1
+    else:
+        new_pity_4 = pity_4 + 1
+        new_pity_5 = pity_5 + 1
     
-    return item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, constellation_info
-
+    return (item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, 
+            constellation_info, new_constellation_level, new_guarantee_4star, new_guarantee_5star, pity_count)
 
 async def get_banner_preview_for_user(user_id: int) -> str:
 

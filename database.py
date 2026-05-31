@@ -390,3 +390,132 @@ async def get_banner_wishes_from_log(user_id: int) -> dict:
                 stats[banner] = count
             stats['total'] += count
         return stats
+
+async def execute_wish_transaction(user_id: int, operations: list) -> bool:
+    async with aiosqlite.connect('sqlite.db') as db:
+        try:
+            await db.execute('BEGIN TRANSACTION')
+            
+            for sql, params in operations:
+                await db.execute(sql, params)
+            
+            await db.commit()
+            return True
+        except Exception as e:
+            await db.rollback()
+            print(f"Транзакция откачена: {e}")
+            return False
+
+async def safe_wish(user_id: int, item_name: str, item_type: str, item_rarity: int,
+                          new_pity_4: int, new_pity_5: int, stardust_gained: int, 
+                          starglitter_gained: int, banner_type: str, pity_count: int,
+                          new_constellation_level: int = None,
+                          new_guarantee_4star: bool = None, new_guarantee_5star: bool = None) -> bool:
+    async with aiosqlite.connect('sqlite.db') as db:
+        try:
+            await db.execute('BEGIN TRANSACTION')
+            await db.execute('UPDATE users SET primogems = primogems - 160 WHERE user_id = ?', (user_id,))
+            await db.execute('UPDATE users SET total_wishes = total_wishes + 1 WHERE user_id = ?', (user_id,))
+            await db.execute('UPDATE users SET pity_4 = ?, pity_5 = ? WHERE user_id = ?', (new_pity_4, new_pity_5, user_id))
+            if new_guarantee_4star is not None:
+                await db.execute('UPDATE users SET guarantee_4star = ? WHERE user_id = ?', (1 if new_guarantee_4star else 0, user_id))
+            if new_guarantee_5star is not None:
+                await db.execute('UPDATE users SET guarantee_5star = ? WHERE user_id = ?', (1 if new_guarantee_5star else 0, user_id))
+            if stardust_gained > 0 or starglitter_gained > 0:
+                await db.execute('UPDATE users SET stardust = stardust + ?, starglitter = starglitter + ? WHERE user_id = ?',
+                               (stardust_gained, starglitter_gained, user_id))
+            await db.execute(
+                'INSERT INTO wish_log (user_id, item_name, rarity, pity_count, current_banner) VALUES (?, ?, ?, ?, ?)',
+                (user_id, item_name, item_rarity, pity_count, banner_type)
+            )
+            if item_type == "character":
+                async with db.execute(
+                    'SELECT id, constellation_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "character"',
+                    (user_id, item_name)
+                ) as cursor:
+                    existing = await cursor.fetchone()
+                if existing:
+                    await db.execute('UPDATE inventory SET constellation_level = constellation_level + 1 WHERE id = ?', (existing[0],))
+                else:
+                    level = new_constellation_level if new_constellation_level is not None else 0
+                    await db.execute(
+                        'INSERT INTO inventory (user_id, item_name, item_type, rarity, constellation_level) VALUES (?, ?, ?, ?, ?)',
+                        (user_id, item_name, "character", item_rarity, level)
+                    )
+            else:
+                async with db.execute(
+                    'SELECT id, refinement_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "weapon"',
+                    (user_id, item_name)
+                ) as cursor:
+                    existing = await cursor.fetchone()
+                if existing:
+                    await db.execute('UPDATE inventory SET refinement_level = refinement_level + 1 WHERE id = ?', 
+                                   (existing[0],))
+                else:
+                    await db.execute(
+                        'INSERT INTO inventory (user_id, item_name, item_type, rarity, refinement_level) VALUES (?, ?, ?, ?, ?)',
+                        (user_id, item_name, "weapon", item_rarity, 1)
+                    )
+            await db.commit()
+            return True
+        except Exception as e:
+            await db.rollback()
+            print(f"❌ Транзакция отказана для {user_id}: {e}")
+            return False
+
+async def safe_wish_ten(user_id: int, wish_data: list, final_pity_4: int, final_pity_5: int,
+                         total_stardust: int, total_starglitter: int, banner_type: str) -> bool:
+    async with aiosqlite.connect('sqlite.db') as db:
+        try:
+            await db.execute('BEGIN TRANSACTION')
+            await db.execute('UPDATE users SET primogems = primogems - 1600 WHERE user_id = ?', (user_id,))
+            await db.execute('UPDATE users SET total_wishes = total_wishes + 10 WHERE user_id = ?', (user_id,))
+            await db.execute('UPDATE users SET pity_4 = ?, pity_5 = ? WHERE user_id = ?', (final_pity_4, final_pity_5, user_id))
+            if total_stardust > 0 or total_starglitter > 0:
+                await db.execute('UPDATE users SET stardust = stardust + ?, starglitter = starglitter + ? WHERE user_id = ?',
+                               (total_stardust, total_starglitter, user_id))
+            for data in wish_data:
+                await db.execute(
+                    'INSERT INTO wish_log (user_id, item_name, rarity, pity_count, current_banner) VALUES (?, ?, ?, ?, ?)',
+                    (user_id, data["item_name"], data["item_rarity"], data["pity_count"], banner_type)
+                )
+                if data["item_type"] == "character":
+                    async with db.execute(
+                        'SELECT id, constellation_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "character"',
+                        (user_id, data["item_name"])
+                    ) as cursor:
+                        existing = await cursor.fetchone()
+                    if existing:
+                        await db.execute('UPDATE inventory SET constellation_level = constellation_level + 1 WHERE id = ?', (existing[0],))
+                    else:
+                        level = data["constellation_level"] if data["constellation_level"] is not None else 0
+                        await db.execute(
+                            'INSERT INTO inventory (user_id, item_name, item_type, rarity, constellation_level) VALUES (?, ?, ?, ?, ?)',
+                            (user_id, data["item_name"], "character", data["item_rarity"], level)
+                        )
+                else:
+                    async with db.execute(
+                        'SELECT id, refinement_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "weapon"',
+                        (user_id, data["item_name"])
+                    ) as cursor:
+                        existing = await cursor.fetchone()
+                    if existing:
+                        await db.execute('UPDATE inventory SET refinement_level = refinement_level + 1 WHERE id = ?', (existing[0],))
+                    else:
+                        await db.execute(
+                            'INSERT INTO inventory (user_id, item_name, item_type, rarity, refinement_level) VALUES (?, ?, ?, ?, ?)',
+                            (user_id, data["item_name"], "weapon", data["item_rarity"], 1)
+                        )
+                if data["new_guarantee_4star"] is not None:
+                    await db.execute('UPDATE users SET guarantee_4star = ? WHERE user_id = ?', 
+                                   (1 if data["new_guarantee_4star"] else 0, user_id))
+                if data["new_guarantee_5star"] is not None:
+                    await db.execute('UPDATE users SET guarantee_5star = ? WHERE user_id = ?', 
+                                   (1 if data["new_guarantee_5star"] else 0, user_id))
+            await db.commit()
+            return True
+            
+        except Exception as e:
+            await db.rollback()
+            print(f"❌ Транзакция 10 круток отказана для {user_id}: {e}")
+            return False

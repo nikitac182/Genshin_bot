@@ -43,7 +43,6 @@ HELP_TEXT = """
     /ban <user_id> <hours> - Забанить пользователя
     /unban <user_id> - Разбанить пользователя
     /delete_user <user_id> - Удалить пользователя
-    /get_user <user_id> - Информация о пользователе
     /set_promo <code> <reward> <uses> <hours> - Создать промокод
     /del_promo <code> - Удалить промокод
     /list_promo - Список всех промокодов
