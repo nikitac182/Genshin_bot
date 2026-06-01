@@ -12,7 +12,7 @@ from database import (
 )
 from asyncio import Lock
 from filters.ban_filter import check_user_not_banned
-from utils import roll_rarity
+from utils import *
 from utils1.randomizer import GachaRandomizer
 from keyboards.inline import back_from_gacha_kb, group_menu_kb
 from datetime import datetime
@@ -309,15 +309,7 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
                 else:
                     new_guarantee_5star = False
         new_guarantee_4star = None
-    if rarity == 5:
-        new_pity_4 = 0
-        new_pity_5 = 0
-    elif rarity == 4:
-        new_pity_4 = 0
-        new_pity_5 = pity_5 + 1
-    else:
-        new_pity_4 = pity_4 + 1
-        new_pity_5 = pity_5 + 1
+    new_pity_4, new_pity_5 = await update_pity(rarity, pity_4, pity_5)
     
     return (item, new_pity_4, new_pity_5, stardust_gained, starglitter_gained, 
             constellation_info, new_constellation_level, new_guarantee_4star, new_guarantee_5star, pity_count)

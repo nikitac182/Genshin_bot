@@ -32,7 +32,7 @@ async def main():
     dp.include_router(subscription_router)
     dp.include_router(admin_router)
 
-    await start_hourly_reward()
+    await start_hourly_reward(bot)
     await dp.start_polling(bot)
     
 if __name__ == "__main__":

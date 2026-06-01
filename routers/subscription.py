@@ -1,10 +1,10 @@
 from aiogram import Router, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from database import set_user_subscription, get_user_subscription
+from database import set_user_subscription
 from filters.ban_filter import IsNotBanned
 from config import CHANNEL_ID
 from keyboards.inline import subscription_kb
-from services.hourly_reward import *
+from services.hourly_reward import refresh_subscription_status
 
 router = Router()
 router.message.filter(IsNotBanned())
@@ -20,7 +20,7 @@ main_menu_button = InlineKeyboardMarkup(
 @router.callback_query(lambda c: c.data == 'check_subscription')
 async def check_subscription(call: types.CallbackQuery):
     user_id = call.from_user.id
-    is_subscribed = await refresh_subscription_status(user_id)
+    is_subscribed = await refresh_subscription_status(call.bot, user_id)
     
     if is_subscribed:
         await call.message.edit_text(

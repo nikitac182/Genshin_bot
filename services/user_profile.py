@@ -1,5 +1,4 @@
 from aiogram.types import CallbackQuery, Message
-from aiogram import F
 from aiogram.fsm.context import FSMContext
 from consts import BANNER_NAMES, PROFILE_CAPTION
 from keyboards.inline import *
