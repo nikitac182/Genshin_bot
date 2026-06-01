@@ -67,34 +67,35 @@ async def set_profile(call: CallbackQuery, user_in_profile_id=None):
     )
     await call.message.edit_text(caption, reply_markup=profile_kb if call.message.chat.type == "private" else profile_menu_kb(call.from_user.id))
 
+async def _show_items_list(call: CallbackQuery, items: list, title_4star: str, title_5star: str, item_format: str):
+    if not items:
+        await call.answer("У вас нет предметов!", show_alert=True)
+        return
+    items = reversed(items)
+    text = f"{title_4star}\n\n"
+    tmp = 4
+    for name, level, rarity in items:
+        if rarity != tmp:
+            text += f"\n{title_5star}\n\n"
+        tmp = rarity
+        text += item_format.format(name=name, level=level)
+
+        if len(text) > 3500:
+            await call.message.answer(text, parse_mode="HTML", reply_markup=close_kb)
+            text = ""
+    await call.message.answer(text, parse_mode="HTML", reply_markup=close_kb)
+    await call.answer()
+
 async def show_characters_list(call: CallbackQuery):
     characters = await get_characters_with_constellation(call.from_user.id)
-    
-    if not characters:
-        await call.answer("У вас нет персонажей!", show_alert=True)
-        return
-    
-    text = "🎭 **Ваши персонажи:**\n\n"
-    for name, level, _ in characters:
-        text += f"-{name} (C{level})\n"
-    
-    await call.message.answer(text, parse_mode="Markdown", reply_markup=close_kb)
-    await call.answer()
+    await _show_items_list(call, characters, "🎭 <b>Ваши персонажи 4★:</b>",
+        "🎭 <b>Ваши персонажи 5★:</b>", "   • {name} (C{level})\n")
 
 
 async def show_weapons_list(call: CallbackQuery):
     weapons = await get_weapons_with_refinement(call.from_user.id)
-    
-    if not weapons:
-        await call.answer("У вас нет оружия 4★ или 5★!", show_alert=True)
-        return
-    
-    text = "⚔️ **Ваше оружие 4★|5★:**\n\n"
-    for name, level, _ in weapons:
-        text += f"-{name} (R{level})\n"
-    
-    await call.message.answer(text, parse_mode="Markdown", reply_markup=close_kb)
-    await call.answer()
+    await _show_items_list(call, weapons, "⚔️ <b>Ваше оружие 4★:</b>",
+        "⚔️ <b>Ваше оружие 5★:</b>", "   • {name} (R{level})\n")
 
 async def close_list(call: CallbackQuery):
     await call.message.delete()

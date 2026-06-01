@@ -414,7 +414,10 @@ async def safe_wish(user_id: int, item_name: str, item_type: str, item_rarity: i
     async with aiosqlite.connect('sqlite.db') as db:
         try:
             await db.execute('BEGIN TRANSACTION')
-            await db.execute('UPDATE users SET primogems = primogems - 160 WHERE user_id = ?', (user_id,))
+            cursor = await db.execute('UPDATE users SET primogems = primogems - 160 WHERE user_id = ? AND primogems >= 160', (user_id,))
+            if cursor.rowcount == 0:
+                await db.rollback()
+                return False
             await db.execute('UPDATE users SET total_wishes = total_wishes + 1 WHERE user_id = ?', (user_id,))
             await db.execute('UPDATE users SET pity_4 = ?, pity_5 = ? WHERE user_id = ?', (new_pity_4, new_pity_5, user_id))
             if new_guarantee_4star is not None:
@@ -468,7 +471,10 @@ async def safe_wish_ten(user_id: int, wish_data: list, final_pity_4: int, final_
     async with aiosqlite.connect('sqlite.db') as db:
         try:
             await db.execute('BEGIN TRANSACTION')
-            await db.execute('UPDATE users SET primogems = primogems - 1600 WHERE user_id = ?', (user_id,))
+            cursor = await db.execute('UPDATE users SET primogems = primogems - 1600 WHERE user_id = ? AND primogems >= 1600', (user_id,))
+            if cursor.rowcount == 0:
+                await db.rollback()
+                return False
             await db.execute('UPDATE users SET total_wishes = total_wishes + 10 WHERE user_id = ?', (user_id,))
             await db.execute('UPDATE users SET pity_4 = ?, pity_5 = ? WHERE user_id = ?', (final_pity_4, final_pity_5, user_id))
             if total_stardust > 0 or total_starglitter > 0:

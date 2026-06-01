@@ -4,6 +4,7 @@ from database import set_user_subscription, get_user_subscription
 from filters.ban_filter import IsNotBanned
 from config import CHANNEL_ID
 from keyboards.inline import subscription_kb
+from services.hourly_reward import *
 
 router = Router()
 router.message.filter(IsNotBanned())
@@ -19,15 +20,9 @@ main_menu_button = InlineKeyboardMarkup(
 @router.callback_query(lambda c: c.data == 'check_subscription')
 async def check_subscription(call: types.CallbackQuery):
     user_id = call.from_user.id
-    
-    try:
-        member = await call.bot.get_chat_member(CHANNEL_ID, user_id)
-        is_subscribed = member.status in ['member', 'creator', 'administrator']
-    except:
-        is_subscribed = False
+    is_subscribed = await refresh_subscription_status(user_id)
     
     if is_subscribed:
-        await set_user_subscription(user_id, True)
         await call.message.edit_text(
             "✅ **Подписка подтверждена!**\n\n"
             "Теперь вы будете получать **150 примогемов** в час вместо обычных 100.\n\n",
@@ -35,7 +30,6 @@ async def check_subscription(call: types.CallbackQuery):
             parse_mode="Markdown"
         )
     else:
-        await set_user_subscription(user_id, False)
         await call.message.delete()
         await call.message.answer(
             "❌ **Вы не подписаны на канал!**\n\n"
