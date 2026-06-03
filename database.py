@@ -2,6 +2,7 @@
 import aiosqlite
 from datetime import datetime, timedelta
 from config import COUNT_WISHES_PER_PAGE
+from utils1.randomizer import get_all_5star_characters, get_all_4star_characters, get_all_5star_weapons, get_all_4star_weapons
 
 async def add_user(user_id, username, name):
     async with aiosqlite.connect('sqlite.db') as db:
@@ -525,3 +526,85 @@ async def safe_wish_ten(user_id: int, wish_data: list, final_pity_4: int, final_
             await db.rollback()
             print(f"❌ Транзакция 10 круток отказана для {user_id}: {e}")
             return False
+
+async def get_users_for_character_leaderboard(character_name: str) -> list:    
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute("""SELECT u.name, u.username, u.user_id, i.constellation_level FROM inventory i JOIN users u 
+            ON u.user_id = i.user_id WHERE i.item_name = ? AND i.item_type = 'character' ORDER BY i.constellation_level DESC, u.total_wishes DESC LIMIT 10""", 
+            (character_name,)
+        ) as cursor:
+            result = await cursor.fetchall()
+            return result if result else []
+
+async def get_user_rank_by_character(user_id: int, character_name: str) -> int:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute("""SELECT COUNT(*) + 1 FROM inventory i WHERE i.item_name = ? AND i.item_type = 'character'
+            AND i.constellation_level > (SELECT COALESCE(constellation_level, -1) FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = 'character')""", 
+            (character_name, user_id, character_name)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else 1
+
+async def get_total_character_owners(character_name: str) -> int:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            """SELECT COUNT(*) FROM inventory WHERE item_name = ? AND item_type = 'character'""", 
+            (character_name,)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else 0
+
+async def get_users_for_weapon_leaderboard(weapon_name: str) -> list:    
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute("""
+            SELECT u.name, u.username, u.user_id, i.refinement_level FROM inventory i JOIN users u ON u.user_id = i.user_id 
+            WHERE i.item_name = ? AND i.item_type = 'weapon' AND i.rarity = 5 ORDER BY i.refinement_level DESC, u.total_wishes DESC LIMIT 10""", 
+            (weapon_name,)
+        ) as cursor:
+            result = await cursor.fetchall()
+            return result if result else []
+
+async def get_user_weapon_rank(user_id: int, weapon_name: str) -> int:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute("""
+            SELECT COUNT(*) + 1 FROM inventory i WHERE i.item_name = ? AND i.item_type = 'weapon' AND i.rarity = 5
+            AND i.refinement_level > (SELECT COALESCE(refinement_level, 0) FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = 'weapon')""", 
+            (weapon_name, user_id, weapon_name)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else 1
+
+async def get_total_weapon_owners(weapon_name: str) -> int:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            """SELECT COUNT(*) FROM inventory WHERE item_name = ? AND item_type = 'weapon' AND rarity = 5""", 
+            (weapon_name,)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else 0
+
+async def find_character_by_name(name: str) -> str | None:
+    all_characters = get_all_5star_characters() + get_all_4star_characters()
+    for char in all_characters:
+        if char.lower() == name.lower():
+            return char
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            """SELECT DISTINCT item_name FROM inventory WHERE item_type = 'character' AND LOWER(item_name) = LOWER(?) LIMIT 1""",
+            (name,)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else None
+
+async def find_weapon_by_name(name: str) -> str | None:
+    all_weapons = get_all_5star_weapons() + get_all_4star_weapons()
+    for weapon in all_weapons:
+        if weapon.lower() == name.lower():
+            return weapon
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            """SELECT DISTINCT item_name FROM inventory WHERE item_type = 'weapon' AND rarity = 5 AND LOWER(item_name) = LOWER(?) LIMIT 1""",
+            (name,)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else None

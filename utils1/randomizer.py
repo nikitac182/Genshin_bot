@@ -30,7 +30,7 @@ class GachaRandomizer:
 
         self.standard_5star_characters = [
             "Дэхья", "Ци Ци", "Кэ Цин", "Тигнари", 
-            "Дилюк", "Джинн", "Мидзуки"
+            "Дилюк", "Джинн", "Мидзуки", "Мона"
         ]
 
         self.banner_5star_characters = [
@@ -41,7 +41,7 @@ class GachaRandomizer:
             "Сянь Юнь", "Навия", "Муалани", "Нёвиллет", "Ризли", "Лини", "Ху Тао",
             "Бай Чжу", "Аль-Хайтам", "Странник", "Нахида", "Сайно", "Нилу", 
             "Аято", "Шэнь Хэ", "Е Лань", "Яэ Мико", "Итто", "Кокоми", "Райдэн", 
-            "Эола", "Ёимия", "Кадзуха", "Ху Тао", "Мона", "Альбедо", "Гань Юй", 
+            "Эола", "Ёимия", "Кадзуха", "Ху Тао", "Альбедо", "Гань Юй", 
             "Тарталья", "Чжун Ли", "Аяка", "Сяо", "Венти", "Ху Тао"
         ]
 
@@ -241,5 +241,11 @@ def get_random_character_by_rarity(rarity: int) -> str:
 def get_all_5star_characters() -> List[str]:
     return GachaRandomizer().all_5star_characters
 
+def get_all_4star_characters() -> List[str]:
+    return GachaRandomizer().characters_4star
+
 def get_all_5star_weapons() -> List[str]:
     return GachaRandomizer().all_5star_weapons
+
+def get_all_4star_weapons() -> List[str]:
+    return GachaRandomizer().weapons_4star

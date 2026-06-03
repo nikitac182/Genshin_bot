@@ -18,6 +18,13 @@ from keyboards.inline import back_from_gacha_kb, group_menu_kb
 from datetime import datetime
 from collections import defaultdict
 
+_randomizer_cache = {}
+
+def get_randomizer(banner_type: str) -> GachaRandomizer:
+    if banner_type not in _randomizer_cache:
+        _randomizer_cache[banner_type] = GachaRandomizer(banner_type)
+    return _randomizer_cache[banner_type]
+
 user_locks = defaultdict(Lock)
 user_lock_last_used = {}
 def get_user_lock(user_id: int) -> Lock:
@@ -223,7 +230,7 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
             await target.answer(msg)
 
 async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner_type: str, guarantee_4star: bool = None, guarantee_5star: bool = None) -> tuple:
-    randomizer = GachaRandomizer(banner_type)
+    randomizer = get_randomizer(banner_type)
     
     stardust_gained = 0
     starglitter_gained = 0
