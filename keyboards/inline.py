@@ -167,11 +167,19 @@ close_kb = InlineKeyboardMarkup(
 leaderboard_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="🎲 Топ по круткам", callback_data="leaderboard_wishes")
-        ],
-        [
             InlineKeyboardButton(text="🔍 Топ по персонажу", callback_data="leaderboard_character"),
             InlineKeyboardButton(text="⚔️ Топ по оружию", callback_data="leaderboard_weapon")
+        ],
+        [
+            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")
+        ],
+    ]
+)
+
+lb_back_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="🎲 Топ по круткам", callback_data="leaderboard")
         ],
         [
             InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")

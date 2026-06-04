@@ -4,7 +4,7 @@ from aiogram.types import *
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from filters.ban_filter import IsNotBanned
-from keyboards.inline import back_menu_kb, leaderboard_kb
+from keyboards.inline import lb_back_kb, leaderboard_kb
 from database import (
     get_users_for_leaderboard, 
     find_character_by_name, 
@@ -25,7 +25,8 @@ router.callback_query.filter(IsNotBanned())
 
 
 @router.callback_query(lambda c: c.data == 'leaderboard')
-async def set_leaderboard(call: CallbackQuery):
+async def set_leaderboard(call: CallbackQuery, state: FSMContext):
+    await state.clear()
     user_id = call.from_user.id
     users = await get_users_for_leaderboard()
 
@@ -48,24 +49,15 @@ async def set_leaderboard(call: CallbackQuery):
         caption += f'\n{i}. {text} - {total_wishes} круток'
         i += 1
     caption += f'\n═══════════════\n📊 Ваша позиция: {position}/{total_users}'
-    try:
-        await call.message.edit_text(caption, reply_markup=leaderboard_kb, parse_mode='HTML')
-    except Exception as e:
-        if "message is not modified" in str(e):
-            await call.answer()
-        else:
-            raise e
-
-@router.callback_query(lambda c: c.data == 'leaderboard_wishes')
-async def leaderboard_by_wishes_switch(call: CallbackQuery):
-    await set_leaderboard(call)
+    
+    await call.message.edit_text(caption, reply_markup=leaderboard_kb, parse_mode='HTML')
 
 @router.callback_query(lambda c: c.data == 'leaderboard_character')
 async def leaderboard_character(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text(
         "🏆 **Введите имя персонажа**\n\n"
         "Имя должно быть написано точно как в игре!",
-        reply_markup=back_menu_kb,
+        reply_markup=lb_back_kb,
         parse_mode='Markdown'
     )
     await state.set_state(LeaderboardState.waiting_for_character)
@@ -78,14 +70,13 @@ async def leaderboard_name(message: Message, state: FSMContext):
     matched_name = await find_character_by_name(character_name)
 
     if not matched_name:
-        await message.answer(f"❌ Нет пользователей с персонажем {character_name}", reply_markup=back_menu_kb)
+        await message.answer(f"❌ Нет пользователей с персонажем {character_name}", reply_markup=lb_back_kb)
         await state.clear()
         return
     
     users = get_users_for_character_leaderboard(matched_name)
     user_rank = get_user_rank_by_character(user_id, matched_name)
     total_owners = get_total_character_owners(matched_name)
-
     users, user_rank, total_owners = await asyncio.gather(users, user_rank, total_owners)
 
     caption = f'🏆 <b>Топ по {matched_name}</b>:\n'
@@ -104,7 +95,7 @@ async def leaderboard_weapon(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text(
         "🏆 **Введите название оружия**\n\n"
         "Название должно быть написано точно как в игре!",
-        reply_markup=back_menu_kb,
+        reply_markup=lb_back_kb,
         parse_mode='Markdown'
     )
     await state.set_state(LeaderboardState.waiting_for_weapon)
@@ -120,13 +111,13 @@ async def leaderboard_weapon_name(message: Message, state: FSMContext):
     matched_name = await find_weapon_by_name(weapon_name)
 
     if not matched_name:
-        await message.answer(f"❌ Нет пользователей с оружием {weapon_name}", reply_markup=back_menu_kb)
+        await message.answer(f"❌ Нет пользователей с оружием {weapon_name}", reply_markup=lb_back_kb)
         await state.clear()
         return
     
-    users = await get_users_for_weapon_leaderboard(matched_name)
-    user_rank = await get_user_weapon_rank(user_id, matched_name)
-    total_owners = await get_total_weapon_owners(matched_name)
+    users = get_users_for_weapon_leaderboard(matched_name)
+    user_rank = get_user_weapon_rank(user_id, matched_name)
+    total_owners = get_total_weapon_owners(matched_name)
     users, user_rank, total_owners = await asyncio.gather(users, user_rank, total_owners)
     
     caption = f'🏆 <b>Топ по {matched_name}</b>:\n'
