@@ -74,10 +74,10 @@ class GachaRandomizer:
             "Бедствие и раскаяние", "Окровавленные руины", "Расколотый ореол", 
             "Симфонист ароматов", "Элегия Люмидус", "Очертания алой луны", 
             "Посох алых песков", "Сияющая жатва", "Усмиритель бед", 
-            "Покоритель вихря", "Посох Хомы", "Некованый",
+            "Покоритель вихря", "Светоносный осколок луны", "Некованый",
             "Подвиг могучего волка", "Тысяча ослепительных солнц", "Клык Горного короля", 
             "Вердикт", "Маяк тростникового моря", "Краснорогий камнеруб", 
-            "Песнь разбитых сосен", "Светоносный осколок луны", "Атаме артис", 
+            "Песнь разбитых сосен", "Посох Хомы", "Атаме артис", 
             "Лазурное сияние", "Песнь патруля пиков", "Отпущение грехов", "Ураку мисугири", 
             "Блеск тихих вод", "Свет лиственного разреза", "Ключ Хадж-нисут", 
             "Харан гэппаку фуцу", "Рассекающий туман", "Драгоценный омут", 
@@ -203,13 +203,130 @@ class GachaRandomizer:
         return False
 
     def get_banner_info(self) -> str:
-        
         if self.banner_type == "characters":
             return "👥 Только 5★ персонажи"
         elif self.banner_type == "weapons":
             return "⚔️ Только 5★ оружие"
         else:
             return "⭐ Все 5★ персонажи и оружия"
+    
+    def get_character_banner_items(self, banner_choice: str = None) -> dict:
+        if banner_choice == 'Цзы Бай':
+            return {
+                "name": "Цзы Бай",
+                "type": "character",
+                "rarity": 5,
+                "banner_5star": ["Цзы Бай"],
+                "banner_4star": ["Иллуги", "Айно", "Горо"]
+            }
+        elif banner_choice == 'Нёвиллет':
+            return {
+                "name": "Нёвиллет",
+                "type": "character",
+                "rarity": 5,
+                "banner_5star": ["Нёвиллет"],
+                "banner_4star": ["Иллуги", "Айно", "Горо"]
+            }
+    
+    def get_weapon_banner_items(self, weapon_choice: str = None, fate_point: int = 0) -> dict:
+        if weapon_choice == 'Светоносный осколок луны':
+            return {
+                "featured": ["Светоносный осколок луны", "Обряд вечного течения"],
+                "chosen": "Светоносный осколок луны",
+                "fate_point": fate_point,
+                "featured_4star": ["Лук Фавония", "Лунное сияние ксифоса", "Око сознания", "Гроза драконов", "Двуручный меч Фавония"]
+            }
+        elif weapon_choice == 'Обряд вечного течения':
+            return {
+                "featured": ["Светоносный осколок луны", "Обряд вечного течения"],
+                "chosen": "Обряд вечного течения",
+                "fate_point": fate_point,
+                "featured_4star": ["Лук Фавония", "Лунное сияние ксифоса", "Око сознания", "Гроза драконов", "Двуручный меч Фавония"]
+            }
+        return None
+    
+    def get_5star_with_path(self, guarantee: bool = False, weapon_choice: str = None, fate_point: int = 0) -> Dict:
+        if self.banner_type == "weapons" and weapon_choice:
+            banner_info = self.get_weapon_banner_items(weapon_choice, fate_point)
+            if banner_info:
+                featured = banner_info["featured"]
+                chosen = banner_info["chosen"]
+                if fate_point == 1:
+                    return {"name": chosen, "type": "weapon", "rarity": 5, "fate_point_used": True}
+                if guarantee:
+                    if random.random() < 0.5:
+                        result = {"name": featured[0], "type": "weapon", "rarity": 5, "guarantee_used": True}
+                    else:
+                        result = {"name": featured[1], "type": "weapon", "rarity": 5, "guarantee_used": True}
+                    if result["name"] == chosen:
+                        result["fate_point_gained"] = False
+                    else:
+                        result["fate_point_gained"] = True
+                    return result
+                else:
+                    if random.random() < 0.75:
+                        if random.random() < 0.5:
+                            result = {"name": featured[0], "type": "weapon", "rarity": 5}
+                        else:
+                            result = {"name": featured[1], "type": "weapon", "rarity": 5}
+                        if result["name"] == chosen:
+                            result["fate_point_gained"] = False
+                        else:
+                            result["fate_point_gained"] = True
+                        result["guarantee_used"] = False
+                        return result
+                    else:
+                        return {"name": random.choice(self.standard_weapons_5star), "type": "weapon", "rarity": 5, 
+                        "fate_point_gained": True, "guarantee_used": False}
+        
+        return self.get_5star(guarantee)
+    
+    def get_4star_with_featured(self, guarantee: bool = False, featured_4star: list = None) -> Dict:
+        if self.banner_type == "characters" and featured_4star:
+            if guarantee:
+                return {"name": random.choice(featured_4star), "type": "character", "rarity": 4}
+            else:
+                if random.random() < 0.5:
+                    return {"name": random.choice(featured_4star), "type": "character", "rarity": 4}
+                else:
+                    if random.random() < 0.5:
+                        return {"name": random.choice(self.characters_4star), "type": "character", "rarity": 4}
+                    else:
+                        return {"name": random.choice(self.weapons_4star), "type": "weapon", "rarity": 4}
+        else:
+            return self.get_4star(guarantee)
+    
+    def get_4star_with_featured_weapons(self, guarantee: bool = False, featured_weapons: list = None) -> Dict:
+        if self.banner_type == "weapons" and featured_weapons:
+            if guarantee:
+                return {
+                    "name": random.choice(featured_weapons),
+                    "type": "weapon",
+                    "rarity": 4
+                }
+            else:
+                if random.random() < 0.75:
+                    return {
+                        "name": random.choice(featured_weapons),
+                        "type": "weapon",
+                        "rarity": 4
+                    }
+                else:
+                    if random.random() < 0.75:
+                        return {
+                            "name": random.choice(self.weapons_4star),
+                            "type": "weapon",
+                            "rarity": 4
+                        }
+                    else:
+                        return {
+                            "name": random.choice(self.characters_4star),
+                            "type": "character",
+                            "rarity": 4
+                        }
+        else:
+            return self.get_4star(guarantee)
+
 
 
 def get_random_weapon_by_rarity(rarity: int) -> str:

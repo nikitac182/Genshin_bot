@@ -608,3 +608,37 @@ async def find_weapon_by_name(name: str) -> str | None:
         ) as cursor:
             result = await cursor.fetchone()
             return result[0] if result else None
+        
+async def get_user_banner_choice(user_id: int, banner_type: str) -> str:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT banner_choice FROM user_banner_choices WHERE user_id = ? AND banner_type = ?',
+            (user_id, banner_type)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else None
+        
+async def set_user_banner_choice(user_id: int, banner_type: str, choice: str):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute(
+            'INSERT OR REPLACE INTO user_banner_choices (user_id, banner_type, banner_choice) VALUES (?, ?, ?)',
+            (user_id, banner_type, choice)
+        )
+        await db.commit()
+
+async def get_user_fate_point(user_id: int) -> int:
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute(
+            'SELECT fate_point FROM users WHERE user_id = ?',
+            (user_id,)
+        ) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else 0
+
+async def set_user_fate_point(user_id: int, fate_point: int):
+    async with aiosqlite.connect('sqlite.db') as db:
+        await db.execute(
+            'UPDATE users SET fate_point = ? WHERE user_id = ?',
+            (fate_point, user_id)
+        )
+        await db.commit()

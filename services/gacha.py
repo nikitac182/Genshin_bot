@@ -13,14 +13,24 @@ from database import (
 from asyncio import Lock
 from filters.ban_filter import check_user_not_banned
 from utils import *
+import random
 from utils1.randomizer import GachaRandomizer
 from keyboards.inline import back_from_gacha_kb, group_menu_kb
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
+from database import get_user_banner_choice, get_user_fate_point, set_user_fate_point
 
 _randomizer_cache = {}
+_cache_timestamps = {}
 
 def get_randomizer(banner_type: str) -> GachaRandomizer:
+    if len(_randomizer_cache) > 10:
+        now = datetime.now()
+        to_remove = [k for k, v in _cache_timestamps.items() 
+                     if now - v > timedelta(hours=1)]
+        for k in to_remove:
+            _randomizer_cache.pop(k, None)
+            _cache_timestamps.pop(k, None)
     if banner_type not in _randomizer_cache:
         _randomizer_cache[banner_type] = GachaRandomizer(banner_type)
     return _randomizer_cache[banner_type]
@@ -241,7 +251,6 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
 async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner_type: str, 
                     guarantee_4star: bool = None, guarantee_5star: bool = None, current_constellation_level: int = None) -> tuple:
     randomizer = get_randomizer(banner_type)
-    
     stardust_gained = 0
     starglitter_gained = 0
     new_constellation_level = None
@@ -256,7 +265,26 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
     elif rarity == 4:
         if guarantee_4star is None:
             guarantee_4star = await get_guarantee_4star(user_id)
-        item = randomizer.get_4star(guarantee_4star)
+        banner_choice = await get_user_banner_choice(user_id, banner_type) if banner_type in ["characters", "weapons"] else None
+        featured_4star = None
+        if banner_type == "characters" and banner_choice:
+            banner_data = randomizer.get_character_banner_items(banner_choice)
+            if banner_data:
+                featured_4star = banner_data["banner_4star"]
+            if featured_4star:
+                item = randomizer.get_4star_with_featured(guarantee_4star, featured_4star)
+            else:
+                item = randomizer.get_4star(guarantee_4star)
+        elif banner_type == "weapons" and banner_choice:
+            randomizer_temp = GachaRandomizer(banner_type)
+            banner_data = randomizer_temp.get_weapon_banner_items(banner_choice)
+            featured_4star = banner_data.get("featured_4star") if banner_data else None
+            if featured_4star:
+                item = randomizer.get_4star_with_featured_weapons(guarantee_4star, featured_4star)
+            else:
+                item = randomizer.get_4star(guarantee_4star)
+        else:
+            item = randomizer.get_4star(guarantee_4star)
         if item["type"] == "character":
             old_level = current_constellation_level
             if old_level is None:
@@ -289,9 +317,19 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
     else:
         if guarantee_5star is None:
             guarantee_5star = await get_guarantee_5star(user_id)
-        item = randomizer.get_5star(guarantee_5star)
+        banner_choice = await get_user_banner_choice(user_id, banner_type) if banner_type in ["characters", "weapons"] else None
         
-        if item["type"] == "character":
+        if banner_type == "characters" and banner_choice:
+            if guarantee_5star:
+                item = {"name": banner_choice, "type": "character", "rarity": 5}
+                new_guarantee_5star = False
+            else:
+                if random.random() < 0.5:
+                    item = {"name": banner_choice, "type": "character", "rarity": 5}
+                    new_guarantee_5star = False
+                else:
+                    item = {"name": random.choice(randomizer.standard_5star_characters), "type": "character", "rarity": 5}
+                    new_guarantee_5star = True
             old_level = current_constellation_level
             if old_level is None:
                 async with aiosqlite.connect('sqlite.db') as db:
@@ -308,20 +346,59 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
                 new_constellation_level = old_level + 1
                 starglitter_gained = 10
                 if old_level >= 6:
-                    starglitter_gained += 15
+                    starglitter_gained += 15  
+        elif banner_type == "weapons" and banner_choice:
+            fate_point = await get_user_fate_point(user_id)
+            result = randomizer.get_5star_with_path(guarantee_5star, banner_choice, fate_point)
+            item = {"name": result["name"], "type": "weapon", "rarity": 5}
+            if result.get("fate_point_used"):
+                await set_user_fate_point(user_id, 0)
+                new_guarantee_5star = False
+            elif result.get("fate_point_gained"):
+                await set_user_fate_point(user_id, 1)
+                new_guarantee_5star = True
+            else:
+                await set_user_fate_point(user_id, 0)
+                new_guarantee_5star = False
+            if result.get("guarantee_used"):
+                new_guarantee_5star = False
+            starglitter_gained = 10
+            new_constellation_level = None
+            
+        else:
+            item = randomizer.get_5star(guarantee_5star)
+            new_guarantee_4star = None
+            
+            if item["type"] == "character":
+                old_level = current_constellation_level
+                if old_level is None:
+                    async with aiosqlite.connect('sqlite.db') as db:
+                        async with db.execute(
+                            'SELECT constellation_level FROM inventory WHERE user_id = ? AND item_name = ? AND item_type = "character"',
+                            (user_id, item["name"])
+                        ) as cursor:
+                            result = await cursor.fetchone()
+                            old_level = result[0] if result else -1
+                if old_level == -1:
+                    new_constellation_level = 0
+                    starglitter_gained = 0
+                else:
+                    new_constellation_level = old_level + 1
+                    starglitter_gained = 10
+                    if old_level >= 6:
+                        starglitter_gained += 15
+            else:
+                starglitter_gained = 10
+                new_constellation_level = None
+            
             if banner_type == "characters":
                 if item["name"] in randomizer.standard_5star_characters:
                     new_guarantee_5star = True
                 else:
                     new_guarantee_5star = False
-        else:
-            starglitter_gained = 10
-            new_constellation_level = None
-            if banner_type == "weapons":
-                if item["name"] in randomizer.standard_weapons_5star:
-                    new_guarantee_5star = True
-                else:
-                    new_guarantee_5star = False
+            else:
+                new_guarantee_5star = None
+        
         new_guarantee_4star = None
     new_pity_4, new_pity_5 = await update_pity(rarity, pity_4, pity_5)
     

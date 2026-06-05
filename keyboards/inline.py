@@ -186,3 +186,40 @@ lb_back_kb = InlineKeyboardMarkup(
         ],
     ]
 )
+
+character_choice_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="👥 Общий", callback_data="banner_characters_common"),
+            InlineKeyboardButton(text="Цзы Бай", callback_data="banner_characters_Цзы Бай"),
+            InlineKeyboardButton(text="Нёвиллет", callback_data="banner_characters_Нёвиллет")
+        ],
+        [
+            InlineKeyboardButton(text="🔙 Назад", callback_data="change_banner")
+        ],
+    ]
+)
+
+weapon_banner_choice_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="⚔️ Общий", callback_data="banner_weapons_common"),
+            InlineKeyboardButton(text="Цзы Бай/Нёвиллет", callback_data="banner_weapons_path"),
+        ],
+        [
+            InlineKeyboardButton(text="🔙 Назад", callback_data="change_banner")
+        ],
+    ]
+)
+
+weapon_choice_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="Светоносный осколок луны", callback_data="banner_weapon_Lightbearing_Moonshard"),
+            InlineKeyboardButton(text="Обряд вечного течения", callback_data="banner_weapon_TotEF")
+        ],
+        [
+            InlineKeyboardButton(text="🔙 Назад", callback_data="change_banner")
+        ],
+    ]
+)

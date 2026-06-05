@@ -28,7 +28,7 @@ async def run_migrations():
             )
         ''')
         
-        await add_column_if_not_exists(db, 'users', 'start_count', 'INTEGER DEFAULT 0')
+        await add_column_if_not_exists(db, 'users', 'fate_point', 'INTEGER DEFAULT 0')
         
         await db.execute('''
             CREATE TABLE IF NOT EXISTS inventory 
@@ -67,6 +67,16 @@ async def run_migrations():
             expires_at DATETIME,
             used_by TEXT DEFAULT '',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS user_banner_choices 
+            (
+            user_id INTEGER,
+            banner_type TEXT,
+            banner_choice TEXT,
+            PRIMARY KEY (user_id, banner_type)
             )
         ''')
         
