@@ -54,12 +54,13 @@ async def set_leaderboard(call: CallbackQuery, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == 'leaderboard_character')
 async def leaderboard_character(call: CallbackQuery, state: FSMContext):
-    await call.message.edit_text(
+    msg = await call.message.edit_text(
         "🏆 **Введите имя персонажа**\n\n"
         "Имя должно быть написано точно как в игре!",
         reply_markup=lb_back_kb,
         parse_mode='Markdown'
     )
+    await state.update_data(bot_message_id=msg.message_id)
     await state.set_state(LeaderboardState.waiting_for_character)
     await call.answer()
 
@@ -67,6 +68,11 @@ async def leaderboard_character(call: CallbackQuery, state: FSMContext):
 async def leaderboard_name(message: Message, state: FSMContext):
     character_name = message.text.strip()
     user_id = message.from_user.id
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    if bot_message_id:
+        await message.bot.delete_message(chat_id=user_id, message_id=bot_message_id)
+    await message.delete()
     matched_name = await find_character_by_name(character_name)
 
     if not matched_name:
@@ -92,12 +98,13 @@ async def leaderboard_name(message: Message, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == 'leaderboard_weapon')
 async def leaderboard_weapon(call: CallbackQuery, state: FSMContext):
-    await call.message.edit_text(
+    msg = await call.message.edit_text(
         "🏆 **Введите название оружия**\n\n"
         "Название должно быть написано точно как в игре!",
         reply_markup=lb_back_kb,
         parse_mode='Markdown'
     )
+    await state.update_data(bot_message_id=msg.message_id)
     await state.set_state(LeaderboardState.waiting_for_weapon)
     await call.answer()
 
@@ -106,8 +113,13 @@ async def leaderboard_weapon(call: CallbackQuery, state: FSMContext):
 async def leaderboard_weapon_name(message: Message, state: FSMContext):
     weapon_name = message.text.strip()
     if weapon_name.lower() in WEAPON_ALIASES:
-        weapon_name = WEAPON_ALIASES[weapon_name]
+        weapon_name = WEAPON_ALIASES[weapon_name.lower()]
     user_id = message.from_user.id
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    if bot_message_id:
+        await message.bot.delete_message(chat_id=user_id, message_id=bot_message_id)
+    await message.delete()
     matched_name = await find_weapon_by_name(weapon_name)
 
     if not matched_name:

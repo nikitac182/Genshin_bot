@@ -101,15 +101,19 @@ async def close_list(call: CallbackQuery):
     await call.answer()
 
 async def set_promo_code(call: CallbackQuery, state: FSMContext):
-    await call.message.edit_text(
+    msg = await call.message.edit_text(
         "🎫 Введите промокод для получения награды:",
         reply_markup=back_menu_kb
     )
+    await state.update_data(bot_message_id=msg.message_id)
     await state.set_state(PromoState.waiting_for_promo_code)
 
 async def process_promo_code(message: Message, state: FSMContext):
     user_text = message.text.strip()
     user_id = message.from_user.id
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    await message.bot.delete_message(chat_id=user_id, message_id=bot_message_id)
     promo_info = await get_promocode_info(user_text)
 
     if not promo_info:

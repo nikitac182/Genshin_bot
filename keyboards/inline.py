@@ -190,9 +190,19 @@ lb_back_kb = InlineKeyboardMarkup(
 character_choice_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="👥 Общий", callback_data="banner_characters_common"),
+            InlineKeyboardButton(text="👥 Общий", callback_data="banner_characters_common")
+        ],
+        [
             InlineKeyboardButton(text="Цзы Бай", callback_data="banner_characters_Цзы Бай"),
             InlineKeyboardButton(text="Нёвиллет", callback_data="banner_characters_Нёвиллет")
+        ],
+        [
+            InlineKeyboardButton(text="Николь", callback_data="banner_characters_Николь"),
+            InlineKeyboardButton(text="Дурин", callback_data="banner_characters_Дурин")
+        ],
+        [
+            InlineKeyboardButton(text="Ху Тао", callback_data="banner_characters_Ху Тао"),
+            InlineKeyboardButton(text="Е Лань", callback_data="banner_characters_Е Лань")
         ],
         [
             InlineKeyboardButton(text="🔙 Назад", callback_data="change_banner")
@@ -204,7 +214,7 @@ weapon_banner_choice_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(text="⚔️ Общий", callback_data="banner_weapons_common"),
-            InlineKeyboardButton(text="Цзы Бай/Нёвиллет", callback_data="banner_weapons_path"),
+            InlineKeyboardButton(text="Оружие с выбором пути", callback_data="banner_weapons_path"),
         ],
         [
             InlineKeyboardButton(text="🔙 Назад", callback_data="change_banner")
@@ -215,8 +225,16 @@ weapon_banner_choice_kb = InlineKeyboardMarkup(
 weapon_choice_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="Светоносный осколок луны", callback_data="banner_weapon_Lightbearing_Moonshard"),
-            InlineKeyboardButton(text="Обряд вечного течения", callback_data="banner_weapon_TotEF")
+            InlineKeyboardButton(text="Светоносный осколок луны", callback_data="banner_weapon_Светоносный осколок луны"),
+            InlineKeyboardButton(text="Обряд вечного течения", callback_data="banner_weapon_Обряд вечного течения")
+        ],
+        [
+            InlineKeyboardButton(text="Гептада ангела", callback_data="banner_weapon_Гептада ангела"),
+            InlineKeyboardButton(text="Атаме артис", callback_data="banner_weapon_Атаме артис")
+        ],
+        [
+            InlineKeyboardButton(text="Посох Хомы", callback_data="banner_weapon_Посох Хомы"),
+            InlineKeyboardButton(text="Аква симулякрум", callback_data="banner_weapon_Аква симулякрум")
         ],
         [
             InlineKeyboardButton(text="🔙 Назад", callback_data="change_banner")

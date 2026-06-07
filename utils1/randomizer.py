@@ -227,6 +227,39 @@ class GachaRandomizer:
                 "banner_5star": ["Нёвиллет"],
                 "banner_4star": ["Иллуги", "Айно", "Горо"]
             }
+        elif banner_choice == 'Николь':
+            return {
+                "name": "Николь",
+                "type": "character",
+                "rarity": 5,
+                "banner_5star": ["Николь"],
+                "banner_4star": ["Прюн", "Рэйзор", "Фишль"]
+            }
+        elif banner_choice == 'Дурин':
+            return {
+                "name": "Дурин",
+                "type": "character",
+                "rarity": 5,
+                "banner_5star": ["Дурин"],
+                "banner_4star": ["Прюн", "Рэйзор", "Фишль"]
+            }
+        elif banner_choice == 'Ху Тао':
+            return {
+                "name": "Ху Тао",
+                "type": "character", 
+                "rarity": 5,
+                "banner_5star": ["Ху Тао"],
+                "banner_4star": ["Син Цю", "Нин Гуан", "Бэй Доу"]
+            }
+        elif banner_choice == 'Е Лань':
+            return {
+                "name": "Е Лань",
+                "type": "character",
+                "rarity": 5,
+                "banner_5star": ["Е Лань"],
+                "banner_4star": ["Син Цю", "Нин Гуан", "Бэй Доу"]
+            }
+        return None
     
     def get_weapon_banner_items(self, weapon_choice: str = None, fate_point: int = 0) -> dict:
         if weapon_choice == 'Светоносный осколок луны':
@@ -242,6 +275,34 @@ class GachaRandomizer:
                 "chosen": "Обряд вечного течения",
                 "fate_point": fate_point,
                 "featured_4star": ["Лук Фавония", "Лунное сияние ксифоса", "Око сознания", "Гроза драконов", "Двуручный меч Фавония"]
+            }
+        elif weapon_choice == 'Гептада ангела':
+            return {
+                "featured": ["Гептада ангела", "Атаме артис"],
+                "chosen": "Гептада ангела",
+                "fate_point": fate_point,
+                "featured_4star": ["Рассвет прядильщицы луны", "Меч-колокол", "Песнь странника", "Гроза драконов", "Вальс нирваны ночи"]
+            }
+        elif weapon_choice == 'Атаме артис':
+            return {
+                "featured": ["Гептада ангела", "Атаме артис"],
+                "chosen": "Атаме артис",
+                "fate_point": fate_point,
+                "featured_4star": ["Рассвет прядильщицы луны", "Меч-колокол", "Песнь странника", "Гроза драконов", "Вальс нирваны ночи"]
+            }
+        elif weapon_choice == 'Посох Хомы':
+            return {
+                "featured": ["Посох Хомы", "Аква симулякрум"],
+                "chosen": "Посох Хомы",
+                "fate_point": fate_point,
+                "featured_4star": ["Ржавый лук", "Меч Фавония", "Гроза драконов", "Кодекс Фавония", "Каменный меч"]
+            }
+        elif weapon_choice == 'Аква симулякрум':
+            return {
+                "featured": ["Посох Хомы", "Аква симулякрум"],
+                "chosen": "Аква симулякрум",
+                "fate_point": fate_point,
+                "featured_4star": ["Ржавый лук", "Меч Фавония", "Гроза драконов", "Кодекс Фавония", "Каменный меч"]
             }
         return None
     
