@@ -1,5 +1,5 @@
 from aiogram.types import Message
-from database import update_user_ban_status, delete_user
+from database import update_user_ban_status
 
 
 async def ban_user(message: Message, user_id: int, duration: int):

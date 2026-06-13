@@ -1,8 +1,21 @@
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from consts import BANNER_NAMES, PROFILE_CAPTION
-from keyboards.inline import *
-from database import *
+from keyboards.inline import promo_kb, back_menu_kb, profile_kb, profile_menu_kb, close_kb
+from database import (
+    data_wishes,
+    get_primogems,
+    get_total_wishes,
+    get_stardust,
+    get_starglitter,
+    get_characters_with_constellation,
+    get_weapons_with_refinement,
+    get_pity,
+    get_user_banner,
+    get_promocode_info,
+    use_promocode,
+    add_primogems,
+)
 from services.paginator import get_wish_menu_kb, get_page, get_max_page
 from state.promocode_state import PromoState
 

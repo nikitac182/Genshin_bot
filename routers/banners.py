@@ -1,11 +1,11 @@
 from aiogram import Router
 from aiogram.types import CallbackQuery, FSInputFile
-from consts import BANNER_NAMES
+from consts import BANNER_IMAGES, WEAPON_BANNER_NAME
 from filters.ban_filter import IsNotBanned
 from keyboards.inline import banner_menu_kb, menu_kb, character_choice_kb, weapon_choice_kb, weapon_banner_choice_kb, back_menu_kb
 from database import set_user_banner, get_user_banner, get_banner_wishes_from_log, set_user_banner_choice, set_user_fate_point, get_user_banner_choice
 from utils1.randomizer import GachaRandomizer
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict
 
 user_photos = defaultdict(dict)
@@ -13,18 +13,6 @@ user_photos = defaultdict(dict)
 router = Router()
 router.message.filter(IsNotBanned())
 router.callback_query.filter(IsNotBanned())
-
-BANNER_IMAGES = {
-    "Цзы Бай": "images/zibai_banner.jpg",
-    "Нёвиллет": "images/neuvi_banner.jpg",
-    "Николь": "images/nicole_banner.jpg",
-    "Дурин": "images/durin_banner.jpg",
-    "Ху Тао": "images/hutao_banner.jpg",
-    "Е Лань": "images/yelan_banner.jpg",
-    "weapons_zine": "images/weapon_zine.png",
-    "weapons_nidu": "images/weapon_nidu.jpg",
-    "weapons_huye": "images/weapon_huye.jpg"
-}
 
 
 @router.callback_query(lambda c: c.data == 'change_banner')
@@ -71,8 +59,7 @@ async def characters_banner_menu(call: CallbackQuery):
 async def weapons_banner_menu(call: CallbackQuery):
     await call.message.edit_text(
         "⚔️ **Выберите тип оружейного баннера**\n\n"
-        "• **Общий** — все 5★ оружие\n"
-        "• **Цзы Бай/Нёвиллет**",
+        "• **Общий** — все 5★ оружие\n",
         reply_markup=weapon_banner_choice_kb,
         parse_mode="Markdown"
     )
@@ -185,7 +172,8 @@ async def set_common_weapon_banner(call: CallbackQuery):
 
 @router.callback_query(lambda c: c.data.startswith('banner_weapon_'))
 async def set_path_weapon_banner(call: CallbackQuery):
-    weapon_name = call.data.split('_')[-1]
+    weapon_key = call.data.split('_')[-1]
+    weapon_name = WEAPON_BANNER_NAME.get(weapon_key, weapon_key)
     user_id = call.from_user.id
     if user_id in user_photos:
         try:
@@ -197,12 +185,7 @@ async def set_path_weapon_banner(call: CallbackQuery):
         except:
             pass
         del user_photos[user_id]
-    if weapon_name in ["Светоносный осколок луны", "Обряд вечного течения"]:
-        image_path = BANNER_IMAGES.get("weapons_zine")
-    elif weapon_name in ["Гептада ангела", "Атаме артис"]:
-        image_path = BANNER_IMAGES.get("weapons_nidu")
-    else:
-        image_path = BANNER_IMAGES.get("weapons_huye")
+    image_path = BANNER_IMAGES.get(weapon_name)
     randomizer_temp = GachaRandomizer("weapons")
     banner_data = randomizer_temp.get_weapon_banner_items(weapon_name)
     featured_4star = banner_data.get("featured_4star", []) if banner_data else []

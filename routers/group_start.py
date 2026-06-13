@@ -2,7 +2,7 @@ from aiogram.filters import CommandStart
 from aiogram import types, Router, F
 from database import add_user, get_status
 from filters.ban_filter import IsNotBanned
-from keyboards.inline import menu_kb, group_menu_kb
+from keyboards.inline import group_menu_kb
 from datetime import datetime
 import aiosqlite
 

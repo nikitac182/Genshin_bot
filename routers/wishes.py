@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.types import CallbackQuery
 from services.gacha import wish_one_time, wish_ten_times
 from filters.ban_filter import IsNotBanned
-from database import *
+from database import get_primogems
 
 router = Router()
 router.message.filter(IsNotBanned())

@@ -1,5 +1,5 @@
 from aiogram.types import *
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from config import COUNT_WISHES_PER_PAGE
 from consts import LAST

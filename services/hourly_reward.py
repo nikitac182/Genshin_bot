@@ -40,20 +40,12 @@ async def check_and_give_hourly_reward(bot: Bot):
                 ) as cursor:
                     users = await cursor.fetchall()
                 
-                for user in users:
-                    user_id = user[0]
+                for user_id, _ in users:
                     real_subscription = await check_subscription_status(bot, user_id)
                     reward = REWARD_SUBSCRIBED if real_subscription else REWARD_NON_SUBSCRIBED
-
-                    if not real_subscription:
-                        await db.execute(
-                            'UPDATE users SET is_subscribed = 0 WHERE user_id = ?',
-                            (user_id,)
-                        )
-                    
                     await db.execute(
-                        'UPDATE users SET primogems = primogems + ?, hour_reward = ? WHERE user_id = ?',
-                        (reward, now, user_id)
+                        'UPDATE users SET primogems = primogems + ?, hour_reward = ?, is_subscribed = ? WHERE user_id = ?',
+                        (reward, now, 1 if real_subscription else 0, user_id)
                     )
                 
                 await db.commit()

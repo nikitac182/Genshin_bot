@@ -1,5 +1,4 @@
 import aiosqlite
-from datetime import datetime, timedelta
 
 
 async def run_migrations():

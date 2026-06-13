@@ -1,5 +1,6 @@
 import aiosqlite
 import asyncio
+import random
 from aiogram.types import *
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
@@ -15,9 +16,10 @@ from database import (
     get_users_for_weapon_leaderboard,
     get_user_weapon_rank,
     get_total_weapon_owners,
-    )
+)
 from state.leaderboard_state import *
-from consts import WEAPON_ALIASES
+from consts import WEAPON_ALIASES, CHARACTER_ALIASES
+from utils1.randomizer import get_all_5star_characters, get_all_4star_characters
 
 router = Router()
 router.message.filter(IsNotBanned())
@@ -56,7 +58,8 @@ async def set_leaderboard(call: CallbackQuery, state: FSMContext):
 async def leaderboard_character(call: CallbackQuery, state: FSMContext):
     msg = await call.message.edit_text(
         "🏆 **Введите имя персонажа**\n\n"
-        "Имя должно быть написано точно как в игре!",
+        "Различные сокращения также могут работать\n"
+        "Примеры: Тао, Хайтам, Кофе",
         reply_markup=lb_back_kb,
         parse_mode='Markdown'
     )
@@ -67,6 +70,11 @@ async def leaderboard_character(call: CallbackQuery, state: FSMContext):
 @router.message(LeaderboardState.waiting_for_character)
 async def leaderboard_name(message: Message, state: FSMContext):
     character_name = message.text.strip()
+    if character_name.lower() == "хуйня":
+        all_characters = get_all_5star_characters() * 5 + get_all_4star_characters()
+        character_name = random.choice(all_characters)
+    elif character_name.lower() in CHARACTER_ALIASES:
+        character_name = CHARACTER_ALIASES[character_name.lower()]
     user_id = message.from_user.id
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
@@ -100,7 +108,8 @@ async def leaderboard_name(message: Message, state: FSMContext):
 async def leaderboard_weapon(call: CallbackQuery, state: FSMContext):
     msg = await call.message.edit_text(
         "🏆 **Введите название оружия**\n\n"
-        "Название должно быть написано точно как в игре!",
+        "Различные сокращения также могут работать\n"
+        "Примеры: Хома, Аква, Ключ, Чайник",
         reply_markup=lb_back_kb,
         parse_mode='Markdown'
     )

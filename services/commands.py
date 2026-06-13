@@ -1,4 +1,11 @@
-from database import *
+from database import (
+    add_primogems,
+    reduce_primogems,
+    set_promo,
+    get_all_promocodes,
+    delete_user,
+    del_promo,
+)
 from aiogram import types, Router, F
 from services.ban import ban_user, unban_user
 from config import ADMIN_ID

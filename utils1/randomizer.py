@@ -259,6 +259,38 @@ class GachaRandomizer:
                 "banner_5star": ["Е Лань"],
                 "banner_4star": ["Син Цю", "Нин Гуан", "Бэй Доу"]
             }
+        elif banner_choice == 'Инеффа':
+            return {
+                "name": "Инеффа",
+                "type": "character",
+                "rarity": 5,
+                "banner_5star": ["Инеффа"],
+                "banner_4star": ["Сетос", "Син Цю", "Фишль"]
+            }
+        elif banner_choice == 'Ситлали':
+            return {
+                "name": "Ситлали",
+                "type": "character",
+                "rarity": 5,
+                "banner_5star": ["Ситлали"],
+                "banner_4star": ["Сетос", "Син Цю", "Фишль"]
+            }
+        elif banner_choice == 'Лоэн':
+            return {
+                "name": "Лоэн",
+                "type": "character",
+                "rarity": 5,
+                "banner_5star": ["Лоэн"],
+                "banner_4star": ["Мика", "Сян Лин", "Беннет"]
+            }
+        elif banner_choice == 'Мавуика':
+            return {
+                "name": "Мавуика",
+                "type": "character",
+                "rarity": 5,
+                "banner_5star": ["Мавуика"],
+                "banner_4star": ["Мика", "Сян Лин", "Беннет"]
+            }
         return None
     
     def get_weapon_banner_items(self, weapon_choice: str = None, fate_point: int = 0) -> dict:
@@ -303,6 +335,34 @@ class GachaRandomizer:
                 "chosen": "Аква симулякрум",
                 "fate_point": fate_point,
                 "featured_4star": ["Ржавый лук", "Меч Фавония", "Гроза драконов", "Кодекс Фавония", "Каменный меч"]
+            }
+        elif weapon_choice == 'Расколотый ореол':
+            return {
+                "featured": ["Расколотый ореол", "Бдение взывающего к звёздам"],
+                "chosen": "Расколотый ореол",
+                "fate_point": fate_point,
+                "featured_4star": ["Крепкая кость", "Крепящий горы шип", "Церемониальный двуручный меч", "Кодекс Фавония", "Боевой лук Фавония"]
+            }
+        elif weapon_choice == 'Бдение взывающего к звёздам':
+            return {
+                "featured": ["Расколотый ореол", "Бдение взывающего к звёздам"],
+                "chosen": "Бдение взывающего к звёздам",
+                "fate_point": fate_point,
+                "featured_4star": ["Крепкая кость", "Крепящий горы шип", "Церемониальный двуручный меч", "Кодекс Фавония", "Боевой лук Фавония"]
+            }
+        elif weapon_choice == 'Бедствие и раскаяние':
+            return {
+                "featured": ["Бедствие и раскаяние", "Тысяча ослепительных солнц"],
+                "chosen": "Бедствие и раскаяние",
+                "fate_point": fate_point,
+                "featured_4star": ["Вспышка во тьме", "Вино и песни", "Охотник во тьме", "Дождерез", "Копьё Фавония"]
+            }
+        elif weapon_choice == 'Тысяча ослепительных солнц':
+            return {
+                "featured": ["Бедствие и раскаяние", "Тысяча ослепительных солнц"],
+                "chosen": "Тысяча ослепительных солнц",
+                "fate_point": fate_point,
+                "featured_4star": ["Вспышка во тьме", "Вино и песни", "Охотник во тьме", "Дождерез", "Копьё Фавония"]
             }
         return None
     

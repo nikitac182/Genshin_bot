@@ -205,6 +205,14 @@ character_choice_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(text="Е Лань", callback_data="banner_characters_Е Лань")
         ],
         [
+            InlineKeyboardButton(text="Ситлали", callback_data="banner_characters_Ситлали"),
+            InlineKeyboardButton(text="Инеффа", callback_data="banner_characters_Инеффа")
+        ],
+        [
+            InlineKeyboardButton(text="Лоэн", callback_data="banner_characters_Лоэн"),
+            InlineKeyboardButton(text="Мавуика", callback_data="banner_characters_Мавуика")
+        ],
+        [
             InlineKeyboardButton(text="🔙 Назад", callback_data="change_banner")
         ],
     ]
@@ -225,16 +233,24 @@ weapon_banner_choice_kb = InlineKeyboardMarkup(
 weapon_choice_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="Светоносный осколок луны", callback_data="banner_weapon_Светоносный осколок луны"),
-            InlineKeyboardButton(text="Обряд вечного течения", callback_data="banner_weapon_Обряд вечного течения")
+            InlineKeyboardButton(text="Светоносный осколок луны", callback_data="banner_weapon_moonshard"),
+            InlineKeyboardButton(text="Обряд вечного течения", callback_data="banner_weapon_totef")
         ],
         [
-            InlineKeyboardButton(text="Гептада ангела", callback_data="banner_weapon_Гептада ангела"),
-            InlineKeyboardButton(text="Атаме артис", callback_data="banner_weapon_Атаме артис")
+            InlineKeyboardButton(text="Гептада ангела", callback_data="banner_weapon_heptada"),
+            InlineKeyboardButton(text="Атаме артис", callback_data="banner_weapon_atame")
         ],
         [
-            InlineKeyboardButton(text="Посох Хомы", callback_data="banner_weapon_Посох Хомы"),
-            InlineKeyboardButton(text="Аква симулякрум", callback_data="banner_weapon_Аква симулякрум")
+            InlineKeyboardButton(text="Посох Хомы", callback_data="banner_weapon_homa"),
+            InlineKeyboardButton(text="Аква симулякрум", callback_data="banner_weapon_aqua")
+        ],
+        [
+            InlineKeyboardButton(text="Бдение взывающего к звёздам", callback_data="banner_weapon_vigil"),
+            InlineKeyboardButton(text="Расколотый ореол", callback_data="banner_weapon_shattered")
+        ],
+        [
+            InlineKeyboardButton(text="Бедствие и раскаяние", callback_data="banner_weapon_calamity"),
+            InlineKeyboardButton(text="Тысяча ослепительных солнц", callback_data="banner_weapon_tbs")
         ],
         [
             InlineKeyboardButton(text="🔙 Назад", callback_data="change_banner")
