@@ -16,6 +16,8 @@ from database import (
     get_users_for_weapon_leaderboard,
     get_user_weapon_rank,
     get_total_weapon_owners,
+    get_users_for_legendary_leaderboard,
+    get_user_legendary_rank,
 )
 from state.leaderboard_state import *
 from consts import WEAPON_ALIASES, CHARACTER_ALIASES
@@ -153,3 +155,29 @@ async def leaderboard_weapon_name(message: Message, state: FSMContext):
     
     await message.answer(caption, reply_markup=leaderboard_kb, parse_mode='HTML')
     await state.clear()
+
+@router.callback_query(lambda c: c.data == 'leaderboard_legendary')
+async def leaderboard_legendary(call: CallbackQuery, state: FSMContext):
+    await state.clear()
+    user_id = call.from_user.id
+    
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute('SELECT COUNT(*) FROM users') as cursor:
+            total_users = await cursor.fetchone()
+            total_users = total_users[0] if total_users else 0
+    
+    users = await get_users_for_legendary_leaderboard()
+    user_rank = await get_user_legendary_rank(user_id)
+    
+    caption = '⭐ <b>Топ по 5★ предметам</b>:\n'
+    i = 1
+    for name, username, uid, legendary_count in users:
+        username = f'@{username}'
+        text = f'<a href="tg://user?id={uid}">{username if username else name}</a>'
+        caption += f'\n{i}. {text} - {legendary_count} лег'
+        i += 1
+    
+    caption += f'\n═══════════════\n📊 Ваша позиция: {user_rank}/{total_users}'
+    
+    await call.message.edit_text(caption, reply_markup=leaderboard_kb, parse_mode='HTML')
+    await call.answer()

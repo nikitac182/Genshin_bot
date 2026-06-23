@@ -642,3 +642,58 @@ async def set_user_fate_point(user_id: int, fate_point: int):
             (fate_point, user_id)
         )
         await db.commit()
+
+async def get_users_for_legendary_leaderboard() -> list:
+    """Получает топ-10 пользователей по количеству 5★ предметов (включая созвездия и пробуждения)"""
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute("""
+            SELECT u.name, u.username, u.user_id, 
+                   COALESCE((
+                       SELECT SUM(i.constellation_level + 1) 
+                       FROM inventory i 
+                       WHERE i.user_id = u.user_id AND i.item_type = 'character' AND i.rarity = 5
+                   ), 0) + COALESCE((
+                       SELECT SUM(i.refinement_level) 
+                       FROM inventory i 
+                       WHERE i.user_id = u.user_id AND i.item_type = 'weapon' AND i.rarity = 5
+                   ), 0) as legendary_count
+            FROM users u
+            GROUP BY u.user_id
+            ORDER BY legendary_count DESC, u.total_wishes DESC
+            LIMIT 10
+        """) as cursor:
+            result = await cursor.fetchall()
+            return result if result else []
+
+async def get_user_legendary_rank(user_id: int) -> int:
+    """Получает позицию пользователя в топе по 5★ предметам"""
+    async with aiosqlite.connect('sqlite.db') as db:
+        async with db.execute("""
+            SELECT COUNT(*) + 1 FROM (
+                SELECT u.user_id,
+                       COALESCE((
+                           SELECT SUM(i.constellation_level + 1) 
+                           FROM inventory i 
+                           WHERE i.user_id = u.user_id AND i.item_type = 'character' AND i.rarity = 5
+                       ), 0) + COALESCE((
+                           SELECT SUM(i.refinement_level) 
+                           FROM inventory i 
+                           WHERE i.user_id = u.user_id AND i.item_type = 'weapon' AND i.rarity = 5
+                       ), 0) as legendary_count
+                FROM users u
+                GROUP BY u.user_id
+                HAVING legendary_count > (
+                    SELECT COALESCE((
+                        SELECT SUM(i.constellation_level + 1) 
+                        FROM inventory i 
+                        WHERE i.user_id = ? AND i.item_type = 'character' AND i.rarity = 5
+                    ), 0) + COALESCE((
+                        SELECT SUM(i.refinement_level) 
+                        FROM inventory i 
+                        WHERE i.user_id = ? AND i.item_type = 'weapon' AND i.rarity = 5
+                    ), 0)
+                )
+            )
+        """, (user_id, user_id)) as cursor:
+            result = await cursor.fetchone()
+            return result[0] if result else 1

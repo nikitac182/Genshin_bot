@@ -11,6 +11,7 @@ from database import (
     safe_wish,
     safe_wish_ten,
     get_user_banner_choice, 
+    set_user_banner_choice,
     get_user_fate_point, 
     set_user_fate_point
 )
@@ -60,6 +61,21 @@ def cleanup_old_locks():
             del user_locks[uid]
             if uid in user_lock_last_used:
                 del user_lock_last_used[uid]
+
+async def validate_banner_choice(user_id: int, banner_type: str, banner_choice: str) -> str | None:
+    if not banner_choice:
+        return None
+    randomizer = get_randomizer(banner_type)
+    if banner_type == "characters":
+        banner_data = randomizer.get_character_banner_items(banner_choice)
+    elif banner_type == "weapons":
+        banner_data = randomizer.get_weapon_banner_items(banner_choice)
+    else:
+        return None
+    if not banner_data:
+        await set_user_banner_choice(user_id, banner_type, None)
+        return None
+    return banner_choice
 
 async def wish_one_time(user_id: int, target: CallbackQuery | Message):
     lock = get_user_lock(user_id)
@@ -113,11 +129,14 @@ async def wish_one_time(user_id: int, target: CallbackQuery | Message):
                 star_text.append(f"⭐ +{starglitter_gained} звёздного блеска")
             star_line = "\n".join(star_text) if star_text else "Ничего дополнительного"
             
+            banner_choice = await get_user_banner_choice(user_id, user_banner) if user_banner in ["characters", "weapons"] else None
+            banner_display = banner_choice if banner_choice else BANNER_NAMES.get(user_banner, 'Неизвестно')
+            
             msg = (
                 f"Вы получили:\n"
                 f"{stars} **{item['name']}**{const_line}\n\n"
                 f"💎 Осталось примогемов: {await get_primogems(user_id)}\n"
-                f"**Баннер:** {BANNER_NAMES.get(user_banner, 'Неизвестно')}\n"
+                f"**Баннер:** {banner_display}\n"
                 f"✨ **Получено:**\n{star_line}"
             )
             
@@ -228,13 +247,15 @@ async def wish_ten_times(user_id: int, target: CallbackQuery | Message):
             if total_starglitter > 0:
                 star_text.append(f"⭐ +{total_starglitter} звёздного блеска")
             star_line = "\n".join(star_text) if star_text else "Ничего дополнительного"
-
+            
+            banner_choice = await get_user_banner_choice(user_id, user_banner) if user_banner in ["characters", "weapons"] else None
+            banner_display = banner_choice if banner_choice else BANNER_NAMES.get(user_banner, 'Неизвестно')
             results_text = "\n".join(results)
             msg = (
                 f"Вы получили:\n"
                 f"{results_text}\n\n"
                 f"💎 Осталось примогемов: {await get_primogems(user_id)}\n"
-                f"**Баннер:** {BANNER_NAMES.get(user_banner, 'Неизвестно')}\n"
+                f"**Баннер:** {banner_display}\n"
                 f"✨ **Получено:**\n{star_line}"
             )
             
@@ -268,6 +289,7 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
         if guarantee_4star is None:
             guarantee_4star = await get_guarantee_4star(user_id)
         banner_choice = await get_user_banner_choice(user_id, banner_type) if banner_type in ["characters", "weapons"] else None
+        banner_choice = await validate_banner_choice(user_id, banner_type, banner_choice)
         featured_4star = None
         if banner_type == "characters" and banner_choice:
             banner_data = randomizer.get_character_banner_items(banner_choice)
@@ -320,7 +342,7 @@ async def get_reward(user_id: int, rarity: int, pity_4: int, pity_5: int, banner
         if guarantee_5star is None:
             guarantee_5star = await get_guarantee_5star(user_id)
         banner_choice = await get_user_banner_choice(user_id, banner_type) if banner_type in ["characters", "weapons"] else None
-        
+        banner_choice = await validate_banner_choice(user_id, banner_type, banner_choice)
         if banner_type == "characters" and banner_choice:
             if guarantee_5star:
                 item = {"name": banner_choice, "type": "character", "rarity": 5}

@@ -167,6 +167,10 @@ close_kb = InlineKeyboardMarkup(
 leaderboard_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
+            InlineKeyboardButton(text="🎲 Топ по круткам", callback_data="leaderboard"),
+            InlineKeyboardButton(text="⭐ Топ по легендаркам", callback_data="leaderboard_legendary")
+        ],
+        [
             InlineKeyboardButton(text="🔍 Топ по персонажу", callback_data="leaderboard_character"),
             InlineKeyboardButton(text="⚔️ Топ по оружию", callback_data="leaderboard_weapon")
         ],
@@ -179,7 +183,8 @@ leaderboard_kb = InlineKeyboardMarkup(
 lb_back_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="🎲 Топ по круткам", callback_data="leaderboard")
+            InlineKeyboardButton(text="🎲 Топ по круткам", callback_data="leaderboard"),
+            InlineKeyboardButton(text="⭐ Топ по легендаркам", callback_data="leaderboard_legendary")
         ],
         [
             InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")
@@ -193,8 +198,8 @@ character_choice_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(text="👥 Общий", callback_data="banner_characters_common")
         ],
         [
-            InlineKeyboardButton(text="Цзы Бай", callback_data="banner_characters_Цзы Бай"),
-            InlineKeyboardButton(text="Нёвиллет", callback_data="banner_characters_Нёвиллет")
+            InlineKeyboardButton(text="Муалани", callback_data="banner_characters_Муалани"),
+            InlineKeyboardButton(text="Кадзуха", callback_data="banner_characters_Кадзуха")
         ],
         [
             InlineKeyboardButton(text="Николь", callback_data="banner_characters_Николь"),
@@ -205,8 +210,8 @@ character_choice_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(text="Е Лань", callback_data="banner_characters_Е Лань")
         ],
         [
-            InlineKeyboardButton(text="Ситлали", callback_data="banner_characters_Ситлали"),
-            InlineKeyboardButton(text="Инеффа", callback_data="banner_characters_Инеффа")
+            InlineKeyboardButton(text="Арлекино", callback_data="banner_characters_Арлекино"),
+            InlineKeyboardButton(text="Клоринда", callback_data="banner_characters_Клоринда")
         ],
         [
             InlineKeyboardButton(text="Лоэн", callback_data="banner_characters_Лоэн"),
@@ -233,8 +238,8 @@ weapon_banner_choice_kb = InlineKeyboardMarkup(
 weapon_choice_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="Светоносный осколок луны", callback_data="banner_weapon_moonshard"),
-            InlineKeyboardButton(text="Обряд вечного течения", callback_data="banner_weapon_totef")
+            InlineKeyboardButton(text="Лови волну", callback_data="banner_weapon_surf"),
+            InlineKeyboardButton(text="Клятва свободы", callback_data="banner_weapon_freedom")
         ],
         [
             InlineKeyboardButton(text="Гептада ангела", callback_data="banner_weapon_heptada"),
@@ -245,8 +250,8 @@ weapon_choice_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(text="Аква симулякрум", callback_data="banner_weapon_aqua")
         ],
         [
-            InlineKeyboardButton(text="Бдение взывающего к звёздам", callback_data="banner_weapon_vigil"),
-            InlineKeyboardButton(text="Расколотый ореол", callback_data="banner_weapon_shattered")
+            InlineKeyboardButton(text="Очертания алой луны", callback_data="banner_weapon_crimson"),
+            InlineKeyboardButton(text="Отпущение грехов", callback_data="banner_weapon_absolution")
         ],
         [
             InlineKeyboardButton(text="Бедствие и раскаяние", callback_data="banner_weapon_calamity"),

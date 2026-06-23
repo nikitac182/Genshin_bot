@@ -41,6 +41,7 @@ async def exchange_stuff(call: CallbackQuery):
 
     new_primogems = await get_primogems(user_id)
     
+    await call.message.delete()
     msg = (
         f"✨ **Обмен завершён!**\n\n"
         f"💎 **Новый баланс:** {new_primogems}\n\n"

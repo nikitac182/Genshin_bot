@@ -67,7 +67,7 @@ CHARACTER_ALIASES = {
     "арле": "Арлекино", "шило": "Шилонен", "мисс хит": "Муалани", "фура": "Фурина", "казуха": "Кадзуха", "щяо": "Сяо",
     "шутник": "Сайно", "ёма": "Ёимия", "чича": "Ци Ци", "кека": "Кэ Цин", "илюха": "Иллуги", "шеврез": "Шеврёз", 
     "сахар": "Сахароза", "чугун": "Чунь Юнь", "куки": "Синобу", "фара": "Фарузан", "синий": "Син Цю", "нина": "Нин Гуан",
-    "байда": "Бэй Доу", "нина": "Нин Гуан", "яна": "Янь Фэй", "юнька": "Юнь Цзинь", "шевре": "Шеврёз",
+    "байда": "Бэй Доу", "нина": "Нин Гуан", "яна": "Янь Фэй", "юнька": "Юнь Цзинь", "шевре": "Шеврёз", "милана": "Муалани",
 }
 
 WEAPON_ALIASES = {
@@ -83,6 +83,8 @@ WEAPON_ALIASES = {
 BANNER_IMAGES = {
     "Цзы Бай": "images/zibai_banner.jpg",
     "Нёвиллет": "images/neuvi_banner.jpg",
+    "Муалани": "images/mualani_banner.jpg",
+    "Кадзуха": "images/kazuha_banner.jpg",
     "Николь": "images/nicole_banner.jpg",
     "Дурин": "images/durin_banner.jpg",
     "Ху Тао": "images/hutao_banner.jpg",
@@ -91,29 +93,32 @@ BANNER_IMAGES = {
     "Ситлали": "images/citlali_banner.jpg",
     "Мавуика": "images/mavu_banner.png",
     "Лоэн": "images/lohen_banner.png",
-    "Светоносный осколок луны": "images/weapon_zine.png",
-    "Обряд вечного течения": "images/weapon_zine.png",
-    "Гептада ангела": "images/weapon_nidu.jpg",
-    "Атаме артис": "images/weapon_nidu.jpg",
-    "Посох Хомы": "images/weapon_huye.jpg",
-    "Аква симулякрум": "images/weapon_huye.jpg",
-    "Расколотый ореол": "images/weapon_inci.jpg",
-    "Бдение взывающего к звёздам": "images/weapon_inci.jpg",
-    "Тысяча ослепительных солнц": "images/weapon_loma.png",
-    "Бедствие и раскаяние": "images/weapon_loma.png"
+    "Арлекино": "images/arle_banner.jpg",
+    "Клоринда": "images/clo_banner.jpg",
+    "Светоносный осколок луны": "images/weapon_zine.png", "Обряд вечного течения": "images/weapon_zine.png",
+    "Лови волну": "images/weapon_muka.jpg", "Клятва свободы": "images/weapon_muka.jpg",
+    "Гептада ангела": "images/weapon_nidu.jpg", "Атаме артис": "images/weapon_nidu.jpg",
+    "Посох Хомы": "images/weapon_huye.jpg", "Аква симулякрум": "images/weapon_huye.jpg",
+    "Расколотый ореол": "images/weapon_inci.jpg", "Бдение взывающего к звёздам": "images/weapon_inci.jpg",
+    "Тысяча ослепительных солнц": "images/weapon_loma.png", "Бедствие и раскаяние": "images/weapon_loma.png",
+    "Очертания алой луны": "images/weapon_clar.jpg", "Отпущение грехов": "images/weapon_clar.jpg"
 }
 
 WEAPON_BANNER_NAME = {
-    "moonshard": "Светоносный осколок луны",
+    "moonshard": "Светоносный осколок луны", 
     "totef": "Обряд вечного течения",
-    "heptada": "Гептада ангела",
+    "heptada": "Гептада ангела", 
     "atame": "Атаме артис",
-    "homa": "Посох Хомы",
+    "homa": "Посох Хомы", 
     "aqua": "Аква симулякрум",
     "shattered": "Расколотый ореол",
     "vigil": "Бдение взывающего к звёздам",
-    "tbs" : "Тысяча ослепительных солнц",
-    "calamity" : "Бедствие и раскаяние"
+    "tbs" : "Тысяча ослепительных солнц", 
+    "calamity" : "Бедствие и раскаяние",
+    "surf" : "Лови волну", 
+    "freedom" : "Клятва свободы",
+    "crimson" : "Очертания алой луны",
+    "absolution" : "Отпущение грехов"
 }
 
 BANNER_NAMES = {
