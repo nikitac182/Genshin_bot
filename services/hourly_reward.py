@@ -56,7 +56,7 @@ async def check_and_give_hourly_reward(bot: Bot):
         await asyncio.sleep(3600)
 
 async def refresh_subscription_status(bot: Bot, user_id: int) -> bool:
-    status = await check_subscription_status(user_id, force=True)
+    status = await check_subscription_status(bot, user_id, force=True)
     async with aiosqlite.connect('sqlite.db') as db:
         await db.execute(
             'UPDATE users SET is_subscribed = ? WHERE user_id = ?',
@@ -64,7 +64,6 @@ async def refresh_subscription_status(bot: Bot, user_id: int) -> bool:
         )
         await db.commit()
     return status
-
 
 async def start_hourly_reward(bot: Bot):
     """Запускает фоновую задачу"""

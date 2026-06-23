@@ -44,15 +44,6 @@ back_menu_kb = InlineKeyboardMarkup(
     ]
 )
 
-confirm_payment_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text="✅ Подтвердить", callback_data="admin_confirm_payment"),
-            InlineKeyboardButton(text="❌ Отмена", callback_data="admin_cancel_payment")
-        ],
-    ]
-)
-
 profile_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -65,12 +56,19 @@ profile_kb = InlineKeyboardMarkup(
     ]
 )
 
+promo_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [InlineKeyboardButton(text="🎫 Ввести промокод", callback_data="promo_code")],
+        [InlineKeyboardButton(text="🔙 Назад в профиль", callback_data="profile")],
+        [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")]
+    ]
+)
+
 def profile_menu_kb(user_id: int):
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")],
         ]
-
     )
 
 shop_menu_kb = InlineKeyboardMarkup(
@@ -104,6 +102,15 @@ def admin_confirm_kb(user_id: int, primogems: int) -> InlineKeyboardMarkup:
             ]
         ]
     )
+
+confirm_payment_kb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="✅ Подтвердить", callback_data="admin_confirm_payment"),
+            InlineKeyboardButton(text="❌ Отмена", callback_data="admin_cancel_payment")
+        ],
+    ]
+)
 
 payment_confirm_kb = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -150,47 +157,29 @@ subscription_kb = InlineKeyboardMarkup(
     ]
 )
 
-promo_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [InlineKeyboardButton(text="🎫 Ввести промокод", callback_data="promo_code")],
-        [InlineKeyboardButton(text="🔙 Назад в профиль", callback_data="profile")],
-        [InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")]
-    ]
-)
-
 close_kb = InlineKeyboardMarkup(
     inline_keyboard=[
         [InlineKeyboardButton(text="❌ Закрыть", callback_data="close_list")]
     ]
 )
 
-leaderboard_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text="🎲 Топ по круткам", callback_data="leaderboard"),
-            InlineKeyboardButton(text="⭐ Топ по легендаркам", callback_data="leaderboard_legendary")
-        ],
-        [
+def get_leaderboard_kb(show_wishes: bool = True, show_legendary: bool = True, show_character_weapon: bool = True) -> InlineKeyboardMarkup:
+    """Генерация клавиатуры лидерборда"""
+    buttons = []
+    row = []
+    if show_wishes:
+        row.append(InlineKeyboardButton(text="🎲 Топ по круткам", callback_data="leaderboard"))
+    if show_legendary:
+        row.append(InlineKeyboardButton(text="⭐ Топ по легендаркам", callback_data="leaderboard_legendary"))
+    if row:
+        buttons.append(row)
+    if show_character_weapon:
+        buttons.append([
             InlineKeyboardButton(text="🔍 Топ по персонажу", callback_data="leaderboard_character"),
             InlineKeyboardButton(text="⚔️ Топ по оружию", callback_data="leaderboard_weapon")
-        ],
-        [
-            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")
-        ],
-    ]
-)
-
-lb_back_kb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text="🎲 Топ по круткам", callback_data="leaderboard"),
-            InlineKeyboardButton(text="⭐ Топ по легендаркам", callback_data="leaderboard_legendary")
-        ],
-        [
-            InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")
-        ],
-    ]
-)
+        ])
+    buttons.append([InlineKeyboardButton(text="🏠 Главное меню", callback_data="back_to_menu")])
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 character_choice_kb = InlineKeyboardMarkup(
     inline_keyboard=[

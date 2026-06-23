@@ -5,7 +5,7 @@ from aiogram.types import *
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from filters.ban_filter import IsNotBanned
-from keyboards.inline import lb_back_kb, leaderboard_kb
+from keyboards.inline import get_leaderboard_kb
 from database import (
     get_users_for_leaderboard, 
     find_character_by_name, 
@@ -22,11 +22,11 @@ from database import (
 from state.leaderboard_state import *
 from consts import WEAPON_ALIASES, CHARACTER_ALIASES
 from utils1.randomizer import get_all_5star_characters, get_all_4star_characters
+lb_back_kb = get_leaderboard_kb(show_character_weapon=False)
 
 router = Router()
 router.message.filter(IsNotBanned())
 router.callback_query.filter(IsNotBanned())
-
 
 @router.callback_query(lambda c: c.data == 'leaderboard')
 async def set_leaderboard(call: CallbackQuery, state: FSMContext):
@@ -53,7 +53,7 @@ async def set_leaderboard(call: CallbackQuery, state: FSMContext):
         caption += f'\n{i}. {text} - {total_wishes} круток'
         i += 1
     caption += f'\n═══════════════\n📊 Ваша позиция: {position}/{total_users}'
-    
+    leaderboard_kb = get_leaderboard_kb(show_wishes=False)
     await call.message.edit_text(caption, reply_markup=leaderboard_kb, parse_mode='HTML')
 
 @router.callback_query(lambda c: c.data == 'leaderboard_character')
@@ -103,6 +103,7 @@ async def leaderboard_name(message: Message, state: FSMContext):
         caption += f"\n{i}. {text} - C{constellation}"
         i += 1
     caption += f'\n═══════════════\n📊 Ваша позиция: {user_rank}/{total_owners}'
+    leaderboard_kb = get_leaderboard_kb()
     await message.answer(caption, reply_markup=leaderboard_kb, parse_mode='HTML')
     await state.clear()
 
@@ -152,7 +153,7 @@ async def leaderboard_weapon_name(message: Message, state: FSMContext):
         i += 1
     
     caption += f'\n═══════════════\n📊 Ваша позиция: {user_rank}/{total_owners}'
-    
+    leaderboard_kb = get_leaderboard_kb()
     await message.answer(caption, reply_markup=leaderboard_kb, parse_mode='HTML')
     await state.clear()
 
@@ -178,6 +179,6 @@ async def leaderboard_legendary(call: CallbackQuery, state: FSMContext):
         i += 1
     
     caption += f'\n═══════════════\n📊 Ваша позиция: {user_rank}/{total_users}'
-    
+    leaderboard_kb = get_leaderboard_kb(show_legendary=False)
     await call.message.edit_text(caption, reply_markup=leaderboard_kb, parse_mode='HTML')
     await call.answer()
