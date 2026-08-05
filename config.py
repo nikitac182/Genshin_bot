@@ -4,6 +4,8 @@ import os
 load_dotenv()
 
 TOKEN = os.getenv('TOKEN')
+# Прокси для запросов к api.telegram.org, например: socks5://127.0.0.1:10808
+PROXY_URL = os.getenv('PROXY_URL') or None
 ADMIN_ID = [1143200581, 8989109361]
 ADMIN_USERNAME = ['@Nekitnnn', '@Gods_GG']
 COUNT_WISHES_PER_PAGE = 5

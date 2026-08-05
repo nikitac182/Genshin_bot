@@ -1,0 +1,17 @@
+[Unit]
+Description=Genshin Telegram Bot
+After=network-online.target xray.service
+Wants=network-online.target
+Requires=xray.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi/Genshin-Bot
+ExecStart=/home/pi/Genshin-Bot/venv/bin/python3 bot.py
+Restart=on-failure
+RestartSec=5
+User=pi
+EnvironmentFile=/home/pi/Genshin-Bot/.env
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,43 @@
+{
+  "log": { "loglevel": "warning" },
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": 10808,
+      "protocol": "socks",
+      "settings": { "auth": "noauth", "udp": true }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "PASTE_SERVER_ADDRESS_HERE",
+            "port": 443,
+            "users": [
+              {
+                "id": "PASTE_UUID_HERE",
+                "encryption": "none",
+                "flow": "xtls-rprx-vision"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+        "realitySettings": {
+          "serverName": "PASTE_SNI_HERE",
+          "fingerprint": "chrome",
+          "publicKey": "PASTE_PUBLIC_KEY_HERE",
+          "shortId": "PASTE_SHORT_ID_HERE"
+        }
+      }
+    },
+    { "tag": "direct", "protocol": "freedom" }
+  ]
+}

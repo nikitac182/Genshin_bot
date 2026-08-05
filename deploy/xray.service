@@ -1,0 +1,14 @@
+[Unit]
+Description=Xray proxy for Genshin-Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/opt/xray/xray run -config /opt/xray/config.json
+Restart=on-failure
+RestartSec=3
+User=pi
+
+[Install]
+WantedBy=multi-user.target

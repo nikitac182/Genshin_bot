@@ -1,6 +1,7 @@
 import asyncio
 from aiogram import Bot, Dispatcher
-from config import TOKEN
+from aiogram.client.session.aiohttp import AiohttpSession
+from config import TOKEN, PROXY_URL
 from routers.admin import router as admin_router
 from routers.start import router as start_router
 from routers.wishes import router as wishes_router
@@ -14,7 +15,8 @@ from services.hourly_reward import start_hourly_reward
 from routers.subscription import router as subscription_router
 from migrations import run_migrations 
     
-bot = Bot(TOKEN)
+session = AiohttpSession(proxy=PROXY_URL) if PROXY_URL else None
+bot = Bot(TOKEN, session=session)
 dp = Dispatcher()
 
 async def main():
